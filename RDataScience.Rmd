@@ -398,4 +398,59 @@ ggplot(data = diamonds) +
 
 ## 3.8 Position Adjustments
 
+There's one more piece of magic associated with bar charts. You can colour a bar chart using the `fill` aesthetic.
 
+In `geom_bar()` the stacking is performed automatically by the **position adjustment** specified by the `position` argument. Can use three other options:
+
+1. `position = "identity"` will place each object exactly where it falls in the context of the graph (not very useful for bars, because it overlaps them).
+
+2. `position = "fill"` works like stacking, but makes each set of stacked bars the same height.
+
+3. `position = "dodge"` places overlapping objects directly *beside* one another. Makes it clear to compare individual values.
+
+```{r position1}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+```
+
+`position = "jitter"` is useful for scatter plots.
+
+```{r position2}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+```
+
+### Exercises 
+
+1. What is the problem with this plot? How could you improve it?
+
+```{r posiex1}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point()
+```
+
+Many of the data points overlap. We can jitter the points by adding some slight random noise, which will improve the overall visualization.
+
+```{r posisol1}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter()
+```
+
+2. What parameters to `geom_jitter()` control the amount of jittering?
+
+`width` and `height`
+
+3. Compare and contrast `geom_jitter()` with `geom_count()`.
+
+`geom_count()` depicts the number of observations in an specific point, while `geom_jitter()` adds random noise.
+
+4. What's the default position adjustment for `geom_boxplot()`? Create a visualisation of the `mpg` dataset that demonstrates it.
+
+`position = "dodge"` is the default position for `geom_boxplot()`. 
+
+```{r posiex4}
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = class, y = hwy, color = drv))
+```
+
+## 3.9 Coordinate systems

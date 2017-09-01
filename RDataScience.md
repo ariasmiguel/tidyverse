@@ -619,4 +619,74 @@ ggplot(data = diamonds) +
 
 ## 3.8 Position Adjustments
 
+There's one more piece of magic associated with bar charts. You can colour a bar chart using the `fill` aesthetic.
 
+In `geom_bar()` the stacking is performed automatically by the **position adjustment** specified by the `position` argument. Can use three other options:
+
+1. `position = "identity"` will place each object exactly where it falls in the context of the graph (not very useful for bars, because it overlaps them).
+
+2. `position = "fill"` works like stacking, but makes each set of stacked bars the same height.
+
+3. `position = "dodge"` places overlapping objects directly *beside* one another. Makes it clear to compare individual values.
+
+
+```r
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+```
+
+![](RDataScience_files/figure-html/position1-1.png)<!-- -->
+
+`position = "jitter"` is useful for scatter plots.
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+```
+
+![](RDataScience_files/figure-html/position2-1.png)<!-- -->
+
+### Exercises 
+
+1. What is the problem with this plot? How could you improve it?
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point()
+```
+
+![](RDataScience_files/figure-html/posiex1-1.png)<!-- -->
+
+Many of the data points overlap. We can jitter the points by adding some slight random noise, which will improve the overall visualization.
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter()
+```
+
+![](RDataScience_files/figure-html/posisol1-1.png)<!-- -->
+
+2. What parameters to `geom_jitter()` control the amount of jittering?
+
+`width` and `height`
+
+3. Compare and contrast `geom_jitter()` with `geom_count()`.
+
+`geom_count()` depicts the number of observations in an specific point, while `geom_jitter()` adds random noise.
+
+4. What's the default position adjustment for `geom_boxplot()`? Create a visualisation of the `mpg` dataset that demonstrates it.
+
+`position = "dodge"` is the default position for `geom_boxplot()`. 
+
+
+```r
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = class, y = hwy, color = drv))
+```
+
+![](RDataScience_files/figure-html/posiex4-1.png)<!-- -->
+
+## 3.9 Coordinate systems
