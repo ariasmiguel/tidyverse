@@ -690,3 +690,90 @@ ggplot(data = mpg) +
 ![](RDataScience_files/figure-html/posiex4-1.png)<!-- -->
 
 ## 3.9 Coordinate systems
+
+* `coord_flip()` switches the x and y axes. Useful if you want horizontal boxplots and for long labels.
+
+* `coord_quickmap()` sets the aspect ratio correctly for maps. Very important if you're plotting spatial data with ggplot2.
+
+
+```r
+nz <- map_data("nz")
+```
+
+```
+## 
+## Attaching package: 'maps'
+```
+
+```
+## The following object is masked from 'package:purrr':
+## 
+##     map
+```
+
+```r
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black")
+```
+
+![](RDataScience_files/figure-html/coord1-1.png)<!-- -->
+
+```r
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black") +
+  coord_quickmap()
+```
+
+![](RDataScience_files/figure-html/coord1-2.png)<!-- -->
+
+* `coord_polar()` uses polar coordinates. They reveal an interesting connection between a bar chart and a Coxcomb chart.
+
+
+```r
+bar <- ggplot(data = diamonds) + 
+  geom_bar(
+    mapping = aes(x = cut, fill = cut), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+bar + coord_flip()
+```
+
+![](RDataScience_files/figure-html/coord2-1.png)<!-- -->
+
+```r
+bar + coord_polar()
+```
+
+![](RDataScience_files/figure-html/coord2-2.png)<!-- -->
+
+### Exercises
+
+1. Turn a stacked bar chart into a pie chart using `coord_polar()`.
+
+
+```r
+ex1 <- ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar()
+
+ex1 + coord_polar()
+```
+
+![](RDataScience_files/figure-html/coordex1-1.png)<!-- -->
+
+2. What does `labs()` do?
+
+Ensure the axis and legend labesl display the full variable name. Adds labels to the graph. You can add a title, subtitle, and a label for the $x$ and $y$ axes, as well as a caption.
+
+3. What's the difference between `coord_quickmap()` and `coord_map()`?
+
+`coord_map` projects a portion of the earth, which is approximately spherical, onto a flat 2D plane. `coord_quickmap` is a quick approximation that does preserve straight lines. It works best for smaller areas closer to the equator.
+
+4. What does the plot below tell you about the relationship between city and highway mpg? Why is `coord_fixed()` important What does `geom_abline() do?
+
+* The relationship between city and highway mpg is a positive linear relationship. 
+* Using `coord_fixed()` the plot draws equal intervals on the $x$ and $y$ axes so they are directly comparable. `geom_abline()` draws a line that, by default, has an intercept of 0 and slope of 1. This aids us in our discovery that automobile gas efficiency is on average slightly higher for highways than city driving. Though the slope of the relationship is still roughly 1-to-1.
+
