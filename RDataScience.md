@@ -260,5 +260,103 @@ ggplot(data = mpg) +
 
 It makes a boolen (True/False). The colors are different for the set rule.
 
+## Facets
+
+Split plot into **facets** (subplots that each display one subset of the data).
+
+To facet your plot by a single variable, use `facet_wrap()`. The first argument of `facet_wrap()` should be a formula, which you create with `~` followed by a variable name.
+
+
+```r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ class, nrow = 2)
+```
+
+![](RDataScience_files/figure-html/facets-1.png)<!-- -->
+
+To facet your plot on the combination of two variables, add `facet_grid()`.
+
+
+```r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ cyl)
+```
+
+![](RDataScience_files/figure-html/facets2-1.png)<!-- -->
+
+### Exercises
+
+1. What happens if you facet on a continuous variable?
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(. ~ cty)
+```
+
+![](RDataScience_files/figure-html/exercise311-1.png)<!-- -->
+
+The number of subplots/facets is too big.
+
+2. What do the empty cells in plot with facet_grid (drv ~ cyl) mean? How do they relate to this plot?
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = drv, y = cyl))
+```
+
+![](RDataScience_files/figure-html/example2-1.png)<!-- -->
+
+The empty cells just mean that there are some type of vehicles that do not have that number of cylinders or vice versa.
+
+3. What plots does the following code make? what does `.` do?
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+```
+
+![](RDataScience_files/figure-html/example3-1.png)<!-- -->
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+![](RDataScience_files/figure-html/example3-2.png)<!-- -->
+
+The code makes the a set of subplots with the type of vehicle as the subplot and the the number of cylinders too. For the first code it separates it in different rows, while the latter does it in different columns.
+
+4. Take the first faceted plot in this section:
+
+
+```r
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+![](RDataScience_files/figure-html/example4-1.png)<!-- -->
+
+By using faceting one can see in more detail the mileage per different vehicle. The disadvantage is that it is harder to compare. With a larger dataset the faceting might not be useful in some cases as the amount of points will be too much.
+
+5. Read `?facet_wrap`. What does `nrow` do? What does `ncol` do? What other options control the layout of individual panes? Why doesn't `facet_grid()` have `nrow` and `ncol` argument?
+
+
+```r
+?facet_wrap
+```
+
+`nrow` and `ncol` determine the number of rows and columns that we want the facets to be divided into. `facet_grid()` does not have these arguments because the number of rows and columns are determined by the categorical variables.
+
+6. When using `facet_grid()` you should usually put the variable with more unique levels in the columns. Why?
+
+It makes the data more understandable.
 
 
