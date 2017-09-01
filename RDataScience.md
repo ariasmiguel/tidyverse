@@ -296,7 +296,7 @@ ggplot(data = mpg) +
   facet_grid(. ~ cty)
 ```
 
-![](RDataScience_files/figure-html/exercise311-1.png)<!-- -->
+![](RDataScience_files/figure-html/facetsex1-1.png)<!-- -->
 
 The number of subplots/facets is too big.
 
@@ -308,7 +308,7 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = drv, y = cyl))
 ```
 
-![](RDataScience_files/figure-html/example2-1.png)<!-- -->
+![](RDataScience_files/figure-html/facetsex2-1.png)<!-- -->
 
 The empty cells just mean that there are some type of vehicles that do not have that number of cylinders or vice versa.
 
@@ -321,7 +321,7 @@ ggplot(data = mpg) +
   facet_grid(drv ~ .)
 ```
 
-![](RDataScience_files/figure-html/example3-1.png)<!-- -->
+![](RDataScience_files/figure-html/facetsex3-1.png)<!-- -->
 
 ```r
 ggplot(data = mpg) + 
@@ -329,7 +329,7 @@ ggplot(data = mpg) +
   facet_grid(. ~ cyl)
 ```
 
-![](RDataScience_files/figure-html/example3-2.png)<!-- -->
+![](RDataScience_files/figure-html/facetsex3-2.png)<!-- -->
 
 The code makes the a set of subplots with the type of vehicle as the subplot and the the number of cylinders too. For the first code it separates it in different rows, while the latter does it in different columns.
 
@@ -342,7 +342,7 @@ ggplot(data = mpg) +
   facet_wrap(~ class, nrow = 2)
 ```
 
-![](RDataScience_files/figure-html/example4-1.png)<!-- -->
+![](RDataScience_files/figure-html/facetsex4-1.png)<!-- -->
 
 By using faceting one can see in more detail the mileage per different vehicle. The disadvantage is that it is harder to compare. With a larger dataset the faceting might not be useful in some cases as the amount of points will be too much.
 
@@ -358,5 +358,173 @@ By using faceting one can see in more detail the mileage per different vehicle. 
 6. When using `facet_grid()` you should usually put the variable with more unique levels in the columns. Why?
 
 It makes the data more understandable.
+
+## Geometric objects
+
+
+```r
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomobj-1.png)<!-- -->
+
+Every geom function in ggplot2 takes a `mapping` argument. Can use `linetype`.
+
+
+```r
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomobj2-1.png)<!-- -->
+
+To display multiple geoms in the same plot, add multiple geom functions to `ggplot()`:
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomobj3-1.png)<!-- -->
+
+### Exercises
+
+1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
+
+* line chart: geom_line()
+* boxplot: geom_boxplot()
+* histogram: geom_histogram()
+* area chart: geom_area()
+
+2. Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomex1-1.png)<!-- -->
+
+3. What does `show.legend = FALSE` do? What happens if you remove it? Why do you think I used it earlier in the chapter?
+
+`show.legend = FALSE` prevents the legend to be shown in the graph. If you remove it the legend is shown. 
+
+4. What does the `se` argument to `geom_smooth()` do?
+
+It asks if you want to display the confidence interval around the smooth (TRUE by default).
+
+5. Will these two graphs look different? Why/why not?
+
+
+```r
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomex5-1.png)<!-- -->
+
+```r
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) 
+```
+
+![](RDataScience_files/figure-html/geomex5-2.png)<!-- -->
+
+These two graphs will look the same as they are graphing the exact same thing. The only difference is that the code is repeated inside geom_point() and geom_smooth().
+
+6. Recreate the R code necessary to generate the following graphs.
+
+
+```r
+# 1
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomex6-1.png)<!-- -->
+
+```r
+# 2
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, group = drv)) + 
+  geom_point(show.legend = FALSE) + 
+  geom_smooth(se = FALSE, show.legend = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomex6-2.png)<!-- -->
+
+```r
+# 3
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomex6-3.png)<!-- -->
+
+```r
+# 4
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = drv)) + 
+  geom_smooth(se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomex6-4.png)<!-- -->
+
+```r
+# 5
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = drv)) + 
+  geom_smooth(mapping = aes(linetype = drv), se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/geomex6-5.png)<!-- -->
+
 
 

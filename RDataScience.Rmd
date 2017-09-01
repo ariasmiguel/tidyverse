@@ -185,7 +185,7 @@ ggplot(data = mpg) +
 ### Exercises
 
 1. What happens if you facet on a continuous variable?
-```{r exercise311}
+```{r facetsex1}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_grid(. ~ cty)
@@ -195,7 +195,7 @@ The number of subplots/facets is too big.
 
 2. What do the empty cells in plot with facet_grid (drv ~ cyl) mean? How do they relate to this plot?
 
-```{r example2}
+```{r facetsex2}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = drv, y = cyl))
 ```
@@ -204,7 +204,7 @@ The empty cells just mean that there are some type of vehicles that do not have 
 
 3. What plots does the following code make? what does `.` do?
 
-```{r example3}
+```{r facetsex3}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) +
   facet_grid(drv ~ .)
@@ -218,7 +218,7 @@ The code makes the a set of subplots with the type of vehicle as the subplot and
 
 4. Take the first faceted plot in this section:
 
-```{r example4}
+```{r facetsex4}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_wrap(~ class, nrow = 2)
@@ -228,7 +228,7 @@ By using faceting one can see in more detail the mileage per different vehicle. 
 
 5. Read `?facet_wrap`. What does `nrow` do? What does `ncol` do? What other options control the layout of individual panes? Why doesn't `facet_grid()` have `nrow` and `ncol` argument?
 
-```{r exercise5}
+```{r facetsex5}
 ?facet_wrap
 ```
 
@@ -237,5 +237,95 @@ By using faceting one can see in more detail the mileage per different vehicle. 
 6. When using `facet_grid()` you should usually put the variable with more unique levels in the columns. Why?
 
 It makes the data more understandable.
+
+## Geometric objects
+
+```{r geomobj}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+Every geom function in ggplot2 takes a `mapping` argument. Can use `linetype`.
+
+```{r geomobj2}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+To display multiple geoms in the same plot, add multiple geom functions to `ggplot()`:
+
+```{r geomobj3}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+### Exercises
+
+1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
+
+* line chart: geom_line()
+* boxplot: geom_boxplot()
+* histogram: geom_histogram()
+* area chart: geom_area()
+
+2. Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.
+
+```{r geomex1}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+3. What does `show.legend = FALSE` do? What happens if you remove it? Why do you think I used it earlier in the chapter?
+
+`show.legend = FALSE` prevents the legend to be shown in the graph. If you remove it the legend is shown. 
+
+4. What does the `se` argument to `geom_smooth()` do?
+
+It asks if you want to display the confidence interval around the smooth (TRUE by default).
+
+5. Will these two graphs look different? Why/why not?
+
+```{r geomex5}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) 
+```
+
+These two graphs will look the same as they are graphing the exact same thing. The only difference is that the code is repeated inside geom_point() and geom_smooth().
+
+6. Recreate the R code necessary to generate the following graphs.
+
+```{r geomex6}
+# 1
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
+# 2
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, group = drv)) + 
+  geom_point(show.legend = FALSE) + 
+  geom_smooth(se = FALSE, show.legend = FALSE)
+
+# 3
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se = FALSE)
+
+# 4
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = drv)) + 
+  geom_smooth(se = FALSE)
+
+# 5
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = drv)) + 
+  geom_smooth(mapping = aes(linetype = drv), se = FALSE)
+```
+
 
 
