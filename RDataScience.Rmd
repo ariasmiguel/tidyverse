@@ -561,4 +561,128 @@ filter(mpg, cyl == 8)
 filter(diamonds, carat > 3)
 ```
 
+## 5. Data Transformation
 
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+
+**Tibbles*: data frames, but slightly tweaked to work better in the tidyverse.
+
+* `int`: integers
+* `dbl`: doubles, or real numbers
+* `chr`: character vectors, or strings
+* `dttm`: date-times (a date + a time)
+* `lgl`: logical, `TRUE` or `FALSE`
+* `fctr`: factors, R uses it to represent categorical variables with fixed possible values
+* `date`: dates
+
+## 5.1 Dplyr basics
+
+* `filter()`: pick observations by their values
+* `arrange()`: reorder the rows
+* `select()`: pick variables by their names
+* `mutate()`: create new variables with functions of existing variables
+* `summarise()`: collapse many values down to a single summary.
+
+## 5.2 Filter rows with filter
+
+Filter `flights` for the flights that happened on January 1st.
+
+```{r filter1}
+jan1 <- filter(flights, month == 1, day == 1)
+```
+
+Flights on December 25 (Christmas)
+```{r filter2}
+(dec25 <- filter(flights, month == 12, day == 25))
+```
+
+### 5.2.2 Logical operators
+
+`&` is "and", `|` is "or", and `!` is "not".
+
+The following code finds all the flights that departed in November or December:
+```{r filter3}
+filter(flights, month == 11 | month == 12)
+
+nov_dec <- filter(flights, month %in% c(11,12))
+```
+
+Can simplify complicated subsetting by remembering De Morgan's law: `!(x &  y)` is the same as `!x | !y`, and `!(x | y)` is the same as `!x & !y`.
+
+Find flights that weren't delayed (on arrival or departure) by more than two hours, you could use either of the following two filters:
+
+```{filter 4}
+filter(flights, !(arr_delay > 120 | dep_delay > 120))
+
+filter(flights, arr_delay <= 120, dep_delay <= 120)
+```
+
+If you want to determine if a value is missing, use `is.na()`:
+
+```{r missing101}
+x <- NA
+is.na(x)
+```
+
+### 5.2.4 Exercises
+
+1. Find all flights that
+
+  * Had an arrival delay of two or more hours
+  
+```{r filterex1}
+library(nycflights13)
+filter(flights, arr_delay >= 120)
+```
+  
+  * Flew to Houston (`IAH` or `HOU`)
+```{r filterex2}
+filter(flights, dest %in% c('IAH','HOU'))
+filter(flights, dest == "IAH" | dest == "HOU")
+```
+
+  * Were operated by United, American, or Delta
+```{r filterex3}
+filter(flights, carrier %in% c("UA","AA","DL"))
+```
+
+  * Departed in summer (July, August, and September)
+```{r filterex4}
+filter(flights, month %in% c(6,7,8))
+```
+
+  * Arrived more than two hours late, but didn't leave late
+```{r filterex5}
+filter(flights, arr_delay >= 120 & dep_delay <= 0)
+```
+
+  * Were delayed by at least an hour, but made up over 30 minutes in flight
+```{r filterex6}
+filter(flights, dep_delay >=60 & (dep_delay - arr_delay) <=60)
+```
+
+  * Departed between midnight and 6am (inclusive)
+```{r filterex7}
+filter(flights, dep_time >= 0, dep_time <= 600)
+```
+
+2. Another useful dplyr filtering helper is `between()`. What does it do? Can you use it to simplify the code needed to answer the previous challenges?
+
+It's a shorcut for `x >= left & x <= right`. It can be used to answer the previous questions in a simpler manner.
+
+3. How many flights have a missing `dep_time`? What other variables are missing? What might these rows represent?
+
+```{r filterex8}
+filter(flights, is.na(dep_time))
+```
+
+8,245 flights have a missing `dep_time`. There are also missing values for arrival time and departure/arrival delay. These flights were most likely cancelled.
+
+4. Why is `NA ^ 0` not missing? Why is `NA | TRUE` not missing? Why is `FALSE & NA` not missing? Can you figure out the general rule? (`NA * 0` is a tricky counterexample)
+
+`NA ^ 0`: by definition anything to the 0th power is 1
+`NA | TRUE`: as long as one condition is `TRUE`, the result is `TRUE`.
+`FALSE & NA`: `NA` indicates the absence of a value, so the conditional expression ignores it.

@@ -878,4 +878,371 @@ filter(diamonds, carat > 3)
 ## # ... with 22 more rows
 ```
 
+## 5. Data Transformation
 
+
+```r
+library(nycflights13)
+library(tidyverse)
+```
+
+**Tibbles*: data frames, but slightly tweaked to work better in the tidyverse.
+
+* `int`: integers
+* `dbl`: doubles, or real numbers
+* `chr`: character vectors, or strings
+* `dttm`: date-times (a date + a time)
+* `lgl`: logical, `TRUE` or `FALSE`
+* `fctr`: factors, R uses it to represent categorical variables with fixed possible values
+* `date`: dates
+
+## 5.1 Dplyr basics
+
+* `filter()`: pick observations by their values
+* `arrange()`: reorder the rows
+* `select()`: pick variables by their names
+* `mutate()`: create new variables with functions of existing variables
+* `summarise()`: collapse many values down to a single summary.
+
+## 5.2 Filter rows with filter
+
+Filter `flights` for the flights that happened on January 1st.
+
+
+```r
+jan1 <- filter(flights, month == 1, day == 1)
+```
+
+Flights on December 25 (Christmas)
+
+```r
+(dec25 <- filter(flights, month == 12, day == 25))
+```
+
+```
+## # A tibble: 719 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013    12    25      456            500        -4      649
+##  2  2013    12    25      524            515         9      805
+##  3  2013    12    25      542            540         2      832
+##  4  2013    12    25      546            550        -4     1022
+##  5  2013    12    25      556            600        -4      730
+##  6  2013    12    25      557            600        -3      743
+##  7  2013    12    25      557            600        -3      818
+##  8  2013    12    25      559            600        -1      855
+##  9  2013    12    25      559            600        -1      849
+## 10  2013    12    25      600            600         0      850
+## # ... with 709 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+### 5.2.2 Logical operators
+
+`&` is "and", `|` is "or", and `!` is "not".
+
+The following code finds all the flights that departed in November or December:
+
+```r
+filter(flights, month == 11 | month == 12)
+```
+
+```
+## # A tibble: 55,403 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013    11     1        5           2359         6      352
+##  2  2013    11     1       35           2250       105      123
+##  3  2013    11     1      455            500        -5      641
+##  4  2013    11     1      539            545        -6      856
+##  5  2013    11     1      542            545        -3      831
+##  6  2013    11     1      549            600       -11      912
+##  7  2013    11     1      550            600       -10      705
+##  8  2013    11     1      554            600        -6      659
+##  9  2013    11     1      554            600        -6      826
+## 10  2013    11     1      554            600        -6      749
+## # ... with 55,393 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+```r
+nov_dec <- filter(flights, month %in% c(11,12))
+```
+
+Can simplify complicated subsetting by remembering De Morgan's law: `!(x &  y)` is the same as `!x | !y`, and `!(x | y)` is the same as `!x & !y`.
+
+Find flights that weren't delayed (on arrival or departure) by more than two hours, you could use either of the following two filters:
+
+
+```filter
+filter(flights, !(arr_delay > 120 | dep_delay > 120))
+
+filter(flights, arr_delay <= 120, dep_delay <= 120)
+```
+
+If you want to determine if a value is missing, use `is.na()`:
+
+
+```r
+x <- NA
+is.na(x)
+```
+
+```
+## [1] TRUE
+```
+
+### 5.2.4 Exercises
+
+1. Find all flights that
+
+  * Had an arrival delay of two or more hours
+  
+
+```r
+library(nycflights13)
+filter(flights, arr_delay >= 120)
+```
+
+```
+## # A tibble: 10,200 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1      811            630       101     1047
+##  2  2013     1     1      848           1835       853     1001
+##  3  2013     1     1      957            733       144     1056
+##  4  2013     1     1     1114            900       134     1447
+##  5  2013     1     1     1505           1310       115     1638
+##  6  2013     1     1     1525           1340       105     1831
+##  7  2013     1     1     1549           1445        64     1912
+##  8  2013     1     1     1558           1359       119     1718
+##  9  2013     1     1     1732           1630        62     2028
+## 10  2013     1     1     1803           1620       103     2008
+## # ... with 10,190 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+  
+  * Flew to Houston (`IAH` or `HOU`)
+
+```r
+filter(flights, dest %in% c('IAH','HOU'))
+```
+
+```
+## # A tibble: 9,313 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1      517            515         2      830
+##  2  2013     1     1      533            529         4      850
+##  3  2013     1     1      623            627        -4      933
+##  4  2013     1     1      728            732        -4     1041
+##  5  2013     1     1      739            739         0     1104
+##  6  2013     1     1      908            908         0     1228
+##  7  2013     1     1     1028           1026         2     1350
+##  8  2013     1     1     1044           1045        -1     1352
+##  9  2013     1     1     1114            900       134     1447
+## 10  2013     1     1     1205           1200         5     1503
+## # ... with 9,303 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+```r
+filter(flights, dest == "IAH" | dest == "HOU")
+```
+
+```
+## # A tibble: 9,313 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1      517            515         2      830
+##  2  2013     1     1      533            529         4      850
+##  3  2013     1     1      623            627        -4      933
+##  4  2013     1     1      728            732        -4     1041
+##  5  2013     1     1      739            739         0     1104
+##  6  2013     1     1      908            908         0     1228
+##  7  2013     1     1     1028           1026         2     1350
+##  8  2013     1     1     1044           1045        -1     1352
+##  9  2013     1     1     1114            900       134     1447
+## 10  2013     1     1     1205           1200         5     1503
+## # ... with 9,303 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+  * Were operated by United, American, or Delta
+
+```r
+filter(flights, carrier %in% c("UA","AA","DL"))
+```
+
+```
+## # A tibble: 139,504 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1      517            515         2      830
+##  2  2013     1     1      533            529         4      850
+##  3  2013     1     1      542            540         2      923
+##  4  2013     1     1      554            600        -6      812
+##  5  2013     1     1      554            558        -4      740
+##  6  2013     1     1      558            600        -2      753
+##  7  2013     1     1      558            600        -2      924
+##  8  2013     1     1      558            600        -2      923
+##  9  2013     1     1      559            600        -1      941
+## 10  2013     1     1      559            600        -1      854
+## # ... with 139,494 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+  * Departed in summer (July, August, and September)
+
+```r
+filter(flights, month %in% c(6,7,8))
+```
+
+```
+## # A tibble: 86,995 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     6     1        2           2359         3      341
+##  2  2013     6     1      451            500        -9      624
+##  3  2013     6     1      506            515        -9      715
+##  4  2013     6     1      534            545       -11      800
+##  5  2013     6     1      538            545        -7      925
+##  6  2013     6     1      539            540        -1      832
+##  7  2013     6     1      546            600       -14      850
+##  8  2013     6     1      551            600        -9      828
+##  9  2013     6     1      552            600        -8      647
+## 10  2013     6     1      553            600        -7      700
+## # ... with 86,985 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+  * Arrived more than two hours late, but didn't leave late
+
+```r
+filter(flights, arr_delay >= 120 & dep_delay <= 0)
+```
+
+```
+## # A tibble: 29 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1    27     1419           1420        -1     1754
+##  2  2013    10     7     1350           1350         0     1736
+##  3  2013    10     7     1357           1359        -2     1858
+##  4  2013    10    16      657            700        -3     1258
+##  5  2013    11     1      658            700        -2     1329
+##  6  2013     3    18     1844           1847        -3       39
+##  7  2013     4    17     1635           1640        -5     2049
+##  8  2013     4    18      558            600        -2     1149
+##  9  2013     4    18      655            700        -5     1213
+## 10  2013     5    22     1827           1830        -3     2217
+## # ... with 19 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+  * Were delayed by at least an hour, but made up over 30 minutes in flight
+
+```r
+filter(flights, dep_delay >=60 & (dep_delay - arr_delay) <=60)
+```
+
+```
+## # A tibble: 26,772 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1      811            630       101     1047
+##  2  2013     1     1      826            715        71     1136
+##  3  2013     1     1      848           1835       853     1001
+##  4  2013     1     1      957            733       144     1056
+##  5  2013     1     1     1114            900       134     1447
+##  6  2013     1     1     1120            944        96     1331
+##  7  2013     1     1     1301           1150        71     1518
+##  8  2013     1     1     1337           1220        77     1649
+##  9  2013     1     1     1400           1250        70     1645
+## 10  2013     1     1     1505           1310       115     1638
+## # ... with 26,762 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+  * Departed between midnight and 6am (inclusive)
+
+```r
+filter(flights, dep_time >= 0, dep_time <= 600)
+```
+
+```
+## # A tibble: 9,344 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1      517            515         2      830
+##  2  2013     1     1      533            529         4      850
+##  3  2013     1     1      542            540         2      923
+##  4  2013     1     1      544            545        -1     1004
+##  5  2013     1     1      554            600        -6      812
+##  6  2013     1     1      554            558        -4      740
+##  7  2013     1     1      555            600        -5      913
+##  8  2013     1     1      557            600        -3      709
+##  9  2013     1     1      557            600        -3      838
+## 10  2013     1     1      558            600        -2      753
+## # ... with 9,334 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+2. Another useful dplyr filtering helper is `between()`. What does it do? Can you use it to simplify the code needed to answer the previous challenges?
+
+It's a shorcut for `x >= left & x <= right`. It can be used to answer the previous questions in a simpler manner.
+
+3. How many flights have a missing `dep_time`? What other variables are missing? What might these rows represent?
+
+
+```r
+filter(flights, is.na(dep_time))
+```
+
+```
+## # A tibble: 8,255 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1       NA           1630        NA       NA
+##  2  2013     1     1       NA           1935        NA       NA
+##  3  2013     1     1       NA           1500        NA       NA
+##  4  2013     1     1       NA            600        NA       NA
+##  5  2013     1     2       NA           1540        NA       NA
+##  6  2013     1     2       NA           1620        NA       NA
+##  7  2013     1     2       NA           1355        NA       NA
+##  8  2013     1     2       NA           1420        NA       NA
+##  9  2013     1     2       NA           1321        NA       NA
+## 10  2013     1     2       NA           1545        NA       NA
+## # ... with 8,245 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+8,245 flights have a missing `dep_time`. There are also missing values for arrival time and departure/arrival delay. These flights were most likely cancelled.
+
+4. Why is `NA ^ 0` not missing? Why is `NA | TRUE` not missing? Why is `FALSE & NA` not missing? Can you figure out the general rule? (`NA * 0` is a tricky counterexample)
+
+`NA ^ 0`: by definition anything to the 0th power is 1
+`NA | TRUE`: as long as one condition is `TRUE`, the result is `TRUE`.
+`FALSE & NA`: `NA` indicates the absence of a value, so the conditional expression ignores it.
