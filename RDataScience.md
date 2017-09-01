@@ -8,7 +8,7 @@ Miguel Arias
 
 ## Data Visualisation
 
-R has several systems for making graphs, but `ggplot2` is one of the most elegant and versatile. It implements the *grammar of graphics*, a coherent system for describing and building graphs.
+R has several systems for making graphs, but `ggplot2` is one of the most elegant and versatile. It implements the **grammar of graphics**, a coherent system for describing and building graphs.
 
 In order to use `ggplot2`, we first need to load the `tidyverse` package.
 
@@ -35,7 +35,7 @@ library(tidyverse)
 ## lag():    dplyr, stats
 ```
 
-1. Do cars with big engines use more fuel than cars with small engines? Use the `mpg` *data frame* found in ggplot2.
+1. Do cars with big engines use more fuel than cars with small engines? Use the `mpg` **data frame** found in ggplot2.
 
 
 ```r
@@ -151,8 +151,114 @@ ggplot(data = mpg) +
 ```
 
 ![](RDataScience_files/figure-html/trash-1.png)<!-- -->
+
 It makes a scatter plot, however there is not enough information for this to be useful. Only portrays if a vehicle is front-wheeler, rear-wheeler, or 4-wheeler.
 
 ## Aesthetic mappings
+
+You can add a third variable to a two dimensional scatterplot by mapping it to an **aesthetic**. An aesthetic is a visual property of the objects in your plot. This include: size, shape, or color of the points.
+
+For example, can map the color of the points to the `class` variable to reveal the class of each car.
+
+
+```r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+```
+
+![](RDataScience_files/figure-html/classes-1.png)<!-- -->
+
+Using size for a discrete variable is not advised.
+
+Could use the *alpha* aesthetic or shape.
+
+```r
+# Left
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+```
+
+![](RDataScience_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+```r
+# Right
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+```
+
+```
+## Warning: The shape palette can deal with a maximum of 6 discrete values
+## because more than 6 becomes difficult to discriminate; you have 7.
+## Consider specifying shapes manually if you must have them.
+```
+
+```
+## Warning: Removed 62 rows containing missing values (geom_point).
+```
+
+![](RDataScience_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
+
+ggplot2 will only use 6 discrete variables at a time for shape.
+
+### Exercises
+
+1. What's gone wrong with this code? Why are the points not blue?
+
+
+```r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+```
+
+![](RDataScience_files/figure-html/exercise1-1.png)<!-- -->
+
+The points are not blue because `blue` is not a variable within `mpg`. As such, it does not make sense to have it inside `aes()`. If we want the points to turn blue, we need to write `color = blue` outside `aes()`.
+
+2. Which variables in `mpg` are categorical? Which variables are continuous? How can you see this information when you run `mpg`?
+
+* Categorical: manufacturer, model, trans, drv, fl, class, cyl 
+* Continuous: year, displ,cty, hwy
+
+In order to see this information: `?mpg`, `str(mpg)`, or go through the entire data `mpg`.
+
+3. Map a continuous variable to `color`, `size`, and `shape`. How do these aesthetics behave differently for categorical vs. continuous variables?
+
+```r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = year))
+```
+
+![](RDataScience_files/figure-html/exercise3-1.png)<!-- -->
+
+With categorical variables the aesthetic affects/changes points that are not together.
+
+4. What happens if you map the same variable to multiple aesthetics?
+
+
+```r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = hwy, y = hwy, color = hwy))
+```
+
+![](RDataScience_files/figure-html/exercise4-1.png)<!-- -->
+
+By doing so, we get a a positively slope line with a 45 degree angle.
+
+5. What deos the `stroke` aesthetic do? What shapes does it work with?
+
+The `stroke` aesthetic increases the size of the border or stroke of the point.
+
+6. What happens if you map an aesthetic to something other than a variable name, like `aes(color = displ < 5)`?
+
+
+```r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = displ < 5))
+```
+
+![](RDataScience_files/figure-html/exercise6-1.png)<!-- -->
+
+It makes a boolen (True/False). The colors are different for the set rule.
+
 
 
