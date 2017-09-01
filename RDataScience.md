@@ -1,15 +1,8 @@
----
-title: "R for Data Science"
-author: "Miguel Arias"
-date: "9/1/2017"
-output: 
-  html_document: 
-    keep_md: yes
----
+# R for Data Science
+Miguel Arias  
+9/1/2017  
 
-```{r setup, include=FALSE, cache = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 # Introduction
 
@@ -17,20 +10,26 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Examples of some code:
 
-```{r}
+
+```r
 1 + 2
+```
+
+```
+## [1] 3
 ```
 
 The easiest way to include *data* in a question is to use dput() to generate the R code to recreate it. For example, to recreate the mtcars dataset in R:
 
 1. Run dput(mtcars) in R
-```{r results='hide'}
-dput(mtcars)
 
+```r
+dput(mtcars)
 ```
 2. Copy the output
 3. In my reproducible script, type mtcars <- then paste
-```{r}
+
+```r
 mtcars <- structure(list(mpg = c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 
 24.4, 22.8, 19.2, 17.8, 16.4, 17.3, 15.2, 10.4, 10.4, 14.7, 32.4, 
 30.4, 33.9, 21.5, 15.5, 15.2, 13.3, 19.2, 27.3, 26, 30.4, 15.8, 
