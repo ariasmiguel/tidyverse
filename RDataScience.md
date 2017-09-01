@@ -6,7 +6,7 @@ Miguel Arias
 
 # R For Data Science
 
-## Data Visualisation
+## 3. Data Visualisation
 
 R has several systems for making graphs, but `ggplot2` is one of the most elegant and versatile. It implements the **grammar of graphics**, a coherent system for describing and building graphs.
 
@@ -154,7 +154,7 @@ ggplot(data = mpg) +
 
 It makes a scatter plot, however there is not enough information for this to be useful. Only portrays if a vehicle is front-wheeler, rear-wheeler, or 4-wheeler.
 
-## Aesthetic mappings
+## 3.3 Aesthetic mappings
 
 You can add a third variable to a two dimensional scatterplot by mapping it to an **aesthetic**. An aesthetic is a visual property of the objects in your plot. This include: size, shape, or color of the points.
 
@@ -260,7 +260,7 @@ ggplot(data = mpg) +
 
 It makes a boolen (True/False). The colors are different for the set rule.
 
-## Facets
+## 3.5 Facets
 
 Split plot into **facets** (subplots that each display one subset of the data).
 
@@ -359,7 +359,7 @@ By using faceting one can see in more detail the mileage per different vehicle. 
 
 It makes the data more understandable.
 
-## Geometric objects
+## 3.6 Geometric objects
 
 
 ```r
@@ -526,5 +526,97 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 
 ![](RDataScience_files/figure-html/geomex6-5.png)<!-- -->
 
+```r
+# 6
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(size = 4, colour = "white") + 
+  geom_point(aes(colour = drv))
+```
+
+![](RDataScience_files/figure-html/geomex6-6.png)<!-- -->
+
+## 3.7 Statistical transformations
+
+
+```r
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+```
+
+![](RDataScience_files/figure-html/stats-1.png)<!-- -->
+
+Every geom has a default stat. There are three reasons why you might need to use a stat explicitly:
+
+1. Might want to override the default stat.
+2. Might want to override the default mapping from transformed variables to aesthetics.
+
+```r
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+```
+
+![](RDataScience_files/figure-html/stats2-1.png)<!-- -->
+3. Might want to draw greater attention to the statistical transformation in the code.
+
+### Exercises
+
+1. What is the default geom associated with `stat_summary()`? How could you rewrite the previous plot to use that geom function instead of the stat function?
+
+The default geom is `geom_pointrange()`.
+
+```r
+ggplot(data = diamonds) +
+  geom_pointrange(mapping = aes(x = cut, y = depth),
+                  stat = "summary",
+                  fun.ymin = min,
+                  fun.ymax = max,
+                  fun.y = median)
+```
+
+![](RDataScience_files/figure-html/statsex1-1.png)<!-- -->
+
+2. What does `geom_col()` do? How is it different to `geom_bar()`?
+
+`geom_bar()` makes the height of the bar proportional to the number of cases in each group (or if the weight aesthetic is supplied, the sum of the weights). If you want the heights of the bars to represent values in the data, use `geom_col` instead.
+
+3. Most geoms and stats come in pairs that are almost always used in concert. Read through the documentation and make a list of all the pairs. What do they have in common?
+
+4. What variables does `stat_smooth()` compute? What parameters control its behaviour?
+
+`stat_smooth()` calculates:
+
+  1. `y`: predicted value
+  2. `ymin`: lower pointwise confidence interval around the mean
+  3. `ymax`: upper pointwise confidence interval around the mean
+  4. `se`: standard error
+
+5. In our proportion bar chart, we need to set `group = 1`. Why? In other words what is the problem with these two graphs?
+
+
+```r
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop..))
+```
+
+![](RDataScience_files/figure-html/statsex5-1.png)<!-- -->
+
+```r
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = color, y = ..prop..))
+```
+
+![](RDataScience_files/figure-html/statsex5-2.png)<!-- -->
+
+If we fail to set `group = 1`, the proportions for each cut are calculated using the complete dataset, rather thane ach subset of `cut`. Instead, we want the graphs to look like this:
+
+
+```r
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+```
+
+![](RDataScience_files/figure-html/statsex5.1-1.png)<!-- -->
+
+## 3.8 Position Adjustments
 
 
