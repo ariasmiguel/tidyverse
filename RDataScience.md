@@ -59,16 +59,12 @@ mpg
 ## # ... with 224 more rows, and 2 more variables: fl <chr>, class <chr>
 ```
 
-```r
-?mpg
-```
-
 Among the variables in `mpg` are:
 
 1. `displ`, a car's engine size, in litres.
 2. `hwy`, a car's fuel efficiency on the highway, in miles per gallon (mpg). A car with low fuel efficiency consumes more fuel than a car with high fuel efficiency when they travel the same distance.
 
-### Creating a ggplot
+#### Creating a ggplot
 
 To plot `mpg`:
 
@@ -77,15 +73,15 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy))
 ```
 
-![](RDataScience_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+![](RDataScience_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
-### Graphing a template
+#### Graphing a template
 
 Template for making graphs:
 
 `ggplot(data = <DATA>) + <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))`
     
-### Exercises
+#### Exercises
 
 1. Run `ggplot(data = mpg)`. What do you see?
 
@@ -94,37 +90,11 @@ Template for making graphs:
 ggplot(data = mpg)
 ```
 
-![](RDataScience_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+![](RDataScience_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 
 There's an empty grey box.
 
 2. How many rows are in `mpg`? How many columns?
-
-
-```r
-mpg
-```
-
-```
-## # A tibble: 234 x 11
-##    manufacturer      model displ  year   cyl      trans   drv   cty   hwy
-##           <chr>      <chr> <dbl> <int> <int>      <chr> <chr> <int> <int>
-##  1         audi         a4   1.8  1999     4   auto(l5)     f    18    29
-##  2         audi         a4   1.8  1999     4 manual(m5)     f    21    29
-##  3         audi         a4   2.0  2008     4 manual(m6)     f    20    31
-##  4         audi         a4   2.0  2008     4   auto(av)     f    21    30
-##  5         audi         a4   2.8  1999     6   auto(l5)     f    16    26
-##  6         audi         a4   2.8  1999     6 manual(m5)     f    18    26
-##  7         audi         a4   3.1  2008     6   auto(av)     f    18    27
-##  8         audi a4 quattro   1.8  1999     4 manual(m5)     4    18    26
-##  9         audi a4 quattro   1.8  1999     4   auto(l5)     4    16    25
-## 10         audi a4 quattro   2.0  2008     4 manual(m6)     4    20    28
-## # ... with 224 more rows, and 2 more variables: fl <chr>, class <chr>
-```
-
-```r
-?mpg
-```
 
 There's 234 rows and 11 variables (columns).
 
@@ -154,7 +124,7 @@ ggplot(data = mpg) +
 
 It makes a scatter plot, however there is not enough information for this to be useful. Only portrays if a vehicle is front-wheeler, rear-wheeler, or 4-wheeler.
 
-## 3.3 Aesthetic mappings
+### 3.3 Aesthetic mappings
 
 You can add a third variable to a two dimensional scatterplot by mapping it to an **aesthetic**. An aesthetic is a visual property of the objects in your plot. This include: size, shape, or color of the points.
 
@@ -178,7 +148,7 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
 ```
 
-![](RDataScience_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+![](RDataScience_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 ```r
 # Right
@@ -196,11 +166,11 @@ ggplot(data = mpg) +
 ## Warning: Removed 62 rows containing missing values (geom_point).
 ```
 
-![](RDataScience_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
+![](RDataScience_files/figure-html/unnamed-chunk-3-2.png)<!-- -->
 
 ggplot2 will only use 6 discrete variables at a time for shape.
 
-### Exercises
+#### Exercises
 
 1. What's gone wrong with this code? Why are the points not blue?
 
@@ -260,7 +230,7 @@ ggplot(data = mpg) +
 
 It makes a boolen (True/False). The colors are different for the set rule.
 
-## 3.5 Facets
+### 3.5 Facets
 
 Split plot into **facets** (subplots that each display one subset of the data).
 
@@ -286,7 +256,7 @@ ggplot(data = mpg) +
 
 ![](RDataScience_files/figure-html/facets2-1.png)<!-- -->
 
-### Exercises
+#### Exercises
 
 1. What happens if you facet on a continuous variable?
 
@@ -359,7 +329,7 @@ By using faceting one can see in more detail the mileage per different vehicle. 
 
 It makes the data more understandable.
 
-## 3.6 Geometric objects
+### 3.6 Geometric objects
 
 
 ```r
@@ -402,7 +372,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 
 ![](RDataScience_files/figure-html/geomobj3-1.png)<!-- -->
 
-### Exercises
+#### Exercises
 
 1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
 
@@ -432,7 +402,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
 
 4. What does the `se` argument to `geom_smooth()` do?
 
-It asks if you want to display the confidence interval around the smooth (TRUE by default).
+It asks if you want to display the confidence interval around the line/smooth (TRUE by default).
 
 5. Will these two graphs look different? Why/why not?
 
@@ -456,7 +426,7 @@ ggplot() +
 
 ![](RDataScience_files/figure-html/geomex5-2.png)<!-- -->
 
-These two graphs will look the same as they are graphing the exact same thing. The only difference is that the code is repeated inside geom_point() and geom_smooth().
+These two graphs will look the same as they are graphing the exact same thing. The only difference is that the code is repeated inside `geom_point()` and `geom_smooth()`.
 
 6. Recreate the R code necessary to generate the following graphs.
 
@@ -535,7 +505,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 
 ![](RDataScience_files/figure-html/geomex6-6.png)<!-- -->
 
-## 3.7 Statistical transformations
+### 3.7 Statistical transformations
 
 
 ```r
@@ -558,7 +528,7 @@ ggplot(data = diamonds) +
 ![](RDataScience_files/figure-html/stats2-1.png)<!-- -->
 3. Might want to draw greater attention to the statistical transformation in the code.
 
-### Exercises
+#### Exercises
 
 1. What is the default geom associated with `stat_summary()`? How could you rewrite the previous plot to use that geom function instead of the stat function?
 
@@ -617,7 +587,7 @@ ggplot(data = diamonds) +
 
 ![](RDataScience_files/figure-html/statsex5.1-1.png)<!-- -->
 
-## 3.8 Position Adjustments
+### 3.8 Position Adjustments
 
 There's one more piece of magic associated with bar charts. You can colour a bar chart using the `fill` aesthetic.
 
@@ -647,7 +617,7 @@ ggplot(data = mpg) +
 
 ![](RDataScience_files/figure-html/position2-1.png)<!-- -->
 
-### Exercises 
+#### Exercises 
 
 1. What is the problem with this plot? How could you improve it?
 
@@ -689,9 +659,9 @@ ggplot(data = mpg) +
 
 ![](RDataScience_files/figure-html/posiex4-1.png)<!-- -->
 
-## 3.9 Coordinate systems
+### 3.9 Coordinate systems
 
-* `coord_flip()` switches the x and y axes. Useful if you want horizontal boxplots and for long labels.
+* `coord_flip()` switches the $x$ and $y$ axes. Useful if you want horizontal boxplots and for long labels.
 
 * `coord_quickmap()` sets the aspect ratio correctly for maps. Very important if you're plotting spatial data with ggplot2.
 
@@ -750,7 +720,7 @@ bar + coord_polar()
 
 ![](RDataScience_files/figure-html/coord2-2.png)<!-- -->
 
-### Exercises
+#### Exercises
 
 1. Turn a stacked bar chart into a pie chart using `coord_polar()`.
 
@@ -766,7 +736,7 @@ ex1 + coord_polar()
 
 2. What does `labs()` do?
 
-Ensure the axis and legend labesl display the full variable name. Adds labels to the graph. You can add a title, subtitle, and a label for the $x$ and $y$ axes, as well as a caption.
+Ensure the axes and legend labesl display the full variable name. Adds labels to the graph. You can add a title, subtitle, and a label for the $x$ and $y$ axes, as well as a caption.
 
 3. What's the difference between `coord_quickmap()` and `coord_map()`?
 
@@ -779,7 +749,7 @@ Ensure the axis and legend labesl display the full variable name. Adds labels to
 
 ## 4. Workflow 
 
-## 4.1 Coding basics
+### 4.1 Coding basics
 
 You can create new objects with `<-`:
 
@@ -791,12 +761,13 @@ All R statements where you create objects, **assignemnet** statements, have the 
 
 `object_name <- value`
 
-## 4.2 What's in a name?
+### 4.2 What's in a name?
 
 Recommend using **snake_case** where you separete lowercase words with `_`.
-`i_use_snake_case`
 
-## 4.3 Calling functions
+This is how object/function names should look: `i_use_snake_case`
+
+### 4.3 Calling functions
 
 R has a large collection of built-in functions that are called like this:
 `function_name(arg1 = val1, arg2 = val2, ...)`
@@ -811,7 +782,7 @@ To create and call out an object:
 ## [1]  1.00  3.25  5.50  7.75 10.00
 ```
 
-## 4.4 Practice
+### 4.4 Practice
 
 1. Why does this code not work?
 
@@ -896,7 +867,7 @@ library(tidyverse)
 * `fctr`: factors, R uses it to represent categorical variables with fixed possible values
 * `date`: dates
 
-## 5.1 Dplyr basics
+### 5.1 Dplyr basics
 
 * `filter()`: pick observations by their values
 * `arrange()`: reorder the rows
@@ -904,7 +875,7 @@ library(tidyverse)
 * `mutate()`: create new variables with functions of existing variables
 * `summarise()`: collapse many values down to a single summary.
 
-## 5.2 Filter rows with filter
+### 5.2 Filter rows with filter
 
 Filter `flights` for the flights that happened on January 1st.
 
@@ -939,7 +910,7 @@ Flights on December 25 (Christmas)
 ## #   minute <dbl>, time_hour <dttm>
 ```
 
-### 5.2.2 Logical operators
+#### 5.2.2 Logical operators
 
 `&` is "and", `|` is "or", and `!` is "not".
 
@@ -996,7 +967,7 @@ is.na(x)
 ## [1] TRUE
 ```
 
-### 5.2.4 Exercises
+#### 5.2.4 Exercises
 
 1. Find all flights that
 
@@ -1212,6 +1183,57 @@ filter(flights, dep_time >= 0, dep_time <= 600)
 
 It's a shorcut for `x >= left & x <= right`. It can be used to answer the previous questions in a simpler manner.
 
+For example:
+
+
+```r
+filter(flights, month >= 7, month <= 9)
+```
+
+```
+## # A tibble: 86,326 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     7     1        1           2029       212      236
+##  2  2013     7     1        2           2359         3      344
+##  3  2013     7     1       29           2245       104      151
+##  4  2013     7     1       43           2130       193      322
+##  5  2013     7     1       44           2150       174      300
+##  6  2013     7     1       46           2051       235      304
+##  7  2013     7     1       48           2001       287      308
+##  8  2013     7     1       58           2155       183      335
+##  9  2013     7     1      100           2146       194      327
+## 10  2013     7     1      100           2245       135      337
+## # ... with 86,316 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+```r
+filter(flights, between(month, 7, 9))
+```
+
+```
+## # A tibble: 86,326 x 19
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     7     1        1           2029       212      236
+##  2  2013     7     1        2           2359         3      344
+##  3  2013     7     1       29           2245       104      151
+##  4  2013     7     1       43           2130       193      322
+##  5  2013     7     1       44           2150       174      300
+##  6  2013     7     1       46           2051       235      304
+##  7  2013     7     1       48           2001       287      308
+##  8  2013     7     1       58           2155       183      335
+##  9  2013     7     1      100           2146       194      327
+## 10  2013     7     1      100           2245       135      337
+## # ... with 86,316 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
 3. How many flights have a missing `dep_time`? What other variables are missing? What might these rows represent?
 
 
@@ -1239,10 +1261,12 @@ filter(flights, is.na(dep_time))
 ## #   minute <dbl>, time_hour <dttm>
 ```
 
-8,245 flights have a missing `dep_time`. There are also missing values for arrival time and departure/arrival delay. These flights were most likely cancelled.
+There are 8,245 flights missing `dep_time`. There are also missing values for arrival time and departure/arrival delay. These flights were most likely cancelled.
 
 4. Why is `NA ^ 0` not missing? Why is `NA | TRUE` not missing? Why is `FALSE & NA` not missing? Can you figure out the general rule? (`NA * 0` is a tricky counterexample)
 
-`NA ^ 0`: by definition anything to the 0th power is 1
+`NA ^ 0`: by definition anything to the 0th power is 1.
+
 `NA | TRUE`: as long as one condition is `TRUE`, the result is `TRUE`.
+
 `FALSE & NA`: `NA` indicates the absence of a value, so the conditional expression ignores it.

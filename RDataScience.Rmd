@@ -19,7 +19,7 @@ R has several systems for making graphs, but `ggplot2` is one of the most elegan
 
 In order to use `ggplot2`, we first need to load the `tidyverse` package.
 
-```{r, results='hide'}
+```{r load1, results="hide"}
 library(tidyverse)
 ```
 
@@ -27,7 +27,6 @@ library(tidyverse)
 
 ```{r mpg}
 mpg
-?mpg
 ```
 
 Among the variables in `mpg` are:
@@ -35,7 +34,7 @@ Among the variables in `mpg` are:
 1. `displ`, a car's engine size, in litres.
 2. `hwy`, a car's fuel efficiency on the highway, in miles per gallon (mpg). A car with low fuel efficiency consumes more fuel than a car with high fuel efficiency when they travel the same distance.
 
-### Creating a ggplot
+#### Creating a ggplot
 
 To plot `mpg`:
 ```{r}
@@ -43,13 +42,13 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy))
 ```
 
-### Graphing a template
+#### Graphing a template
 
 Template for making graphs:
 
 `ggplot(data = <DATA>) + <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))`
     
-### Exercises
+#### Exercises
 
 1. Run `ggplot(data = mpg)`. What do you see?
 
@@ -60,11 +59,6 @@ ggplot(data = mpg)
 There's an empty grey box.
 
 2. How many rows are in `mpg`? How many columns?
-
-```{r}
-mpg
-?mpg
-```
 
 There's 234 rows and 11 variables (columns).
 
@@ -88,7 +82,7 @@ ggplot(data = mpg) +
 
 It makes a scatter plot, however there is not enough information for this to be useful. Only portrays if a vehicle is front-wheeler, rear-wheeler, or 4-wheeler.
 
-## 3.3 Aesthetic mappings
+### 3.3 Aesthetic mappings
 
 You can add a third variable to a two dimensional scatterplot by mapping it to an **aesthetic**. An aesthetic is a visual property of the objects in your plot. This include: size, shape, or color of the points.
 
@@ -114,7 +108,7 @@ ggplot(data = mpg) +
 
 ggplot2 will only use 6 discrete variables at a time for shape.
 
-### Exercises
+#### Exercises
 
 1. What's gone wrong with this code? Why are the points not blue?
 
@@ -162,7 +156,7 @@ ggplot(data = mpg) +
 
 It makes a boolen (True/False). The colors are different for the set rule.
 
-## 3.5 Facets
+### 3.5 Facets
 
 Split plot into **facets** (subplots that each display one subset of the data).
 
@@ -182,7 +176,7 @@ ggplot(data = mpg) +
   facet_grid(drv ~ cyl)
 ```
 
-### Exercises
+#### Exercises
 
 1. What happens if you facet on a continuous variable?
 ```{r facetsex1}
@@ -238,7 +232,7 @@ By using faceting one can see in more detail the mileage per different vehicle. 
 
 It makes the data more understandable.
 
-## 3.6 Geometric objects
+### 3.6 Geometric objects
 
 ```{r geomobj}
 ggplot(data = mpg) + 
@@ -260,7 +254,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_smooth()
 ```
 
-### Exercises
+#### Exercises
 
 1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
 
@@ -283,7 +277,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
 
 4. What does the `se` argument to `geom_smooth()` do?
 
-It asks if you want to display the confidence interval around the smooth (TRUE by default).
+It asks if you want to display the confidence interval around the line/smooth (TRUE by default).
 
 5. Will these two graphs look different? Why/why not?
 
@@ -296,7 +290,7 @@ ggplot() +
   geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) 
 ```
 
-These two graphs will look the same as they are graphing the exact same thing. The only difference is that the code is repeated inside geom_point() and geom_smooth().
+These two graphs will look the same as they are graphing the exact same thing. The only difference is that the code is repeated inside `geom_point()` and `geom_smooth()`.
 
 6. Recreate the R code necessary to generate the following graphs.
 
@@ -332,7 +326,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_point(aes(colour = drv))
 ```
 
-## 3.7 Statistical transformations
+### 3.7 Statistical transformations
 
 ```{r stats}
 ggplot(data = diamonds) + 
@@ -349,7 +343,7 @@ ggplot(data = diamonds) +
 ```
 3. Might want to draw greater attention to the statistical transformation in the code.
 
-### Exercises
+#### Exercises
 
 1. What is the default geom associated with `stat_summary()`? How could you rewrite the previous plot to use that geom function instead of the stat function?
 
@@ -396,7 +390,7 @@ ggplot(data = diamonds) +
 
 ```
 
-## 3.8 Position Adjustments
+### 3.8 Position Adjustments
 
 There's one more piece of magic associated with bar charts. You can colour a bar chart using the `fill` aesthetic.
 
@@ -420,7 +414,7 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
 ```
 
-### Exercises 
+#### Exercises 
 
 1. What is the problem with this plot? How could you improve it?
 
@@ -453,9 +447,9 @@ ggplot(data = mpg) +
   geom_boxplot(mapping = aes(x = class, y = hwy, color = drv))
 ```
 
-## 3.9 Coordinate systems
+### 3.9 Coordinate systems
 
-* `coord_flip()` switches the x and y axes. Useful if you want horizontal boxplots and for long labels.
+* `coord_flip()` switches the $x$ and $y$ axes. Useful if you want horizontal boxplots and for long labels.
 
 * `coord_quickmap()` sets the aspect ratio correctly for maps. Very important if you're plotting spatial data with ggplot2.
 
@@ -486,7 +480,7 @@ bar + coord_flip()
 bar + coord_polar()
 ```
 
-### Exercises
+#### Exercises
 
 1. Turn a stacked bar chart into a pie chart using `coord_polar()`.
 
@@ -499,7 +493,7 @@ ex1 + coord_polar()
 
 2. What does `labs()` do?
 
-Ensure the axis and legend labesl display the full variable name. Adds labels to the graph. You can add a title, subtitle, and a label for the $x$ and $y$ axes, as well as a caption.
+Ensure the axes and legend labesl display the full variable name. Adds labels to the graph. You can add a title, subtitle, and a label for the $x$ and $y$ axes, as well as a caption.
 
 3. What's the difference between `coord_quickmap()` and `coord_map()`?
 
@@ -512,7 +506,7 @@ Ensure the axis and legend labesl display the full variable name. Adds labels to
 
 ## 4. Workflow 
 
-## 4.1 Coding basics
+### 4.1 Coding basics
 
 You can create new objects with `<-`:
 ```{r coding1}
@@ -523,12 +517,13 @@ All R statements where you create objects, **assignemnet** statements, have the 
 
 `object_name <- value`
 
-## 4.2 What's in a name?
+### 4.2 What's in a name?
 
 Recommend using **snake_case** where you separete lowercase words with `_`.
-`i_use_snake_case`
 
-## 4.3 Calling functions
+This is how object/function names should look: `i_use_snake_case`
+
+### 4.3 Calling functions
 
 R has a large collection of built-in functions that are called like this:
 `function_name(arg1 = val1, arg2 = val2, ...)`
@@ -538,7 +533,7 @@ To create and call out an object:
 (y <- seq(1,10, length.out = 5))
 ```
 
-## 4.4 Practice
+### 4.4 Practice
 
 1. Why does this code not work?
 
@@ -578,7 +573,7 @@ library(tidyverse)
 * `fctr`: factors, R uses it to represent categorical variables with fixed possible values
 * `date`: dates
 
-## 5.1 Dplyr basics
+### 5.1 Dplyr basics
 
 * `filter()`: pick observations by their values
 * `arrange()`: reorder the rows
@@ -586,7 +581,7 @@ library(tidyverse)
 * `mutate()`: create new variables with functions of existing variables
 * `summarise()`: collapse many values down to a single summary.
 
-## 5.2 Filter rows with filter
+### 5.2 Filter rows with filter
 
 Filter `flights` for the flights that happened on January 1st.
 
@@ -599,7 +594,7 @@ Flights on December 25 (Christmas)
 (dec25 <- filter(flights, month == 12, day == 25))
 ```
 
-### 5.2.2 Logical operators
+#### 5.2.2 Logical operators
 
 `&` is "and", `|` is "or", and `!` is "not".
 
@@ -627,7 +622,7 @@ x <- NA
 is.na(x)
 ```
 
-### 5.2.4 Exercises
+#### 5.2.4 Exercises
 
 1. Find all flights that
 
@@ -673,16 +668,25 @@ filter(flights, dep_time >= 0, dep_time <= 600)
 
 It's a shorcut for `x >= left & x <= right`. It can be used to answer the previous questions in a simpler manner.
 
+For example:
+
+```{r filterex22}
+filter(flights, month >= 7, month <= 9)
+filter(flights, between(month, 7, 9))
+```
+
 3. How many flights have a missing `dep_time`? What other variables are missing? What might these rows represent?
 
 ```{r filterex8}
 filter(flights, is.na(dep_time))
 ```
 
-8,245 flights have a missing `dep_time`. There are also missing values for arrival time and departure/arrival delay. These flights were most likely cancelled.
+There are 8,245 flights missing `dep_time`. There are also missing values for arrival time and departure/arrival delay. These flights were most likely cancelled.
 
 4. Why is `NA ^ 0` not missing? Why is `NA | TRUE` not missing? Why is `FALSE & NA` not missing? Can you figure out the general rule? (`NA * 0` is a tricky counterexample)
 
-`NA ^ 0`: by definition anything to the 0th power is 1
+`NA ^ 0`: by definition anything to the 0th power is 1.
+
 `NA | TRUE`: as long as one condition is `TRUE`, the result is `TRUE`.
+
 `FALSE & NA`: `NA` indicates the absence of a value, so the conditional expression ignores it.
