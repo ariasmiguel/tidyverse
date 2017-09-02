@@ -690,3 +690,282 @@ There are 8,245 flights missing `dep_time`. There are also missing values for ar
 `NA | TRUE`: as long as one condition is `TRUE`, the result is `TRUE`.
 
 `FALSE & NA`: `NA` indicates the absence of a value, so the conditional expression ignores it.
+
+### 5.3 Arrange rows with `arrange()`
+
+`arrange()` works similarly to `filter()` except that instead of selecting rows, it changes their order.
+
+```{r arrange1}
+arrange(flights, year, month, day)
+```
+
+Can use `desc()` to re-order by a column in descending order:
+
+```{r arrange2}
+arrange(flights, desc(arr_delay))
+```
+
+Missing values are always sorted at the end:
+
+```{r arrange3}
+df <- tibble(x = c(5, 2, NA))
+arrange(df, x)
+arrange(df, desc(x))
+```
+
+#### 5.3.1 Exercises
+
+1. How could you use `arrange()` to sort all missing values to the start? (Hint: use `is.na()`).
+
+```{r arrangex1, results = "hide"}
+# arrange(data, !is.na(.))
+```
+
+A working example:
+
+```{r arrangeex1}
+arrange(flights, !is.na(dep_time))
+```
+
+2. Sort `flights` to find the most delayed flights. Find the flights that left earliest.
+
+```{r arrangex2}
+# Based on arrival delay
+arrange(flights, desc(arr_delay))
+
+# Flights that left earliest
+arrange(flights, dep_delay)
+```
+
+3. Sort `flights` to find the fastest flights.
+
+```{r arrangex3}
+# Based on speed
+arrange(flights, desc(distance/air_time))
+```
+
+4. Which flights travelled the longest? Which travelled the shortest?
+
+```{r arrangex4}
+# Longest
+arrange(flights, desc(distance))
+
+# Shortest
+arrange(flights, distance)
+```
+
+### 5.4 Select columns with `select()`
+
+`select()` allows you to rapidly zoom in on a useful subset using operations based on the names of variables.
+
+```{r select1}
+# Select columns by name
+select(flights, year, month, day)
+
+# Select all columns between year and day
+select(flights, year:day)
+
+# Select all columns except those from year to day (inclusive)
+select(flights, -(year:day))
+```
+
+There are a number of helper functions you can use within `select()`:
+
+* `starts_with("abc")`
+* `ends_with("xyz")`
+* `contains("ijk")`
+* `matches("(.)\\1")`: selects variables that match a regular expression. This one matches any variables that contain repeated characters. More in **strings**.
+*`num_range("x", 1:3)` matches `x1`, `x2` and `x3`.
+
+Use `everything()` if there's a handful of variables that you want to move to the start of the data frame.
+
+```{r select2}
+select(flights, time_hour, air_time, everything())
+```
+
+#### 5.4.1 Exercises
+
+1. Brainstorm as many ways a spossible to select `dep_time`, `dep_delay`, `arr_time`, and `arr_delay` from `flights`.
+
+```{r selectex1}
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+select(flights, starts_with("dep"), starts_with("arr"))
+select(flights, ends_with("time"), ends_with("delay"))
+select(flights, contains("delay"))
+```
+
+3. What does the `one_of()` function do? Why might it be useful in conjunction with this vector?
+
+```{r selectex3}
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+
+# one_of() selects any variable which matches one of the strings in the vector
+
+select(flights, one_of(vars))
+```
+
+4. Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you chance that default?
+
+```{r selectex4}
+select(flights, contains("TIME"))
+```
+
+By default the select helpers ignore case. To adhere to case, set `ignore.case = FALSE` in the helper function. For example
+
+```{r selectex41}
+select(flights, contains("TIME", ignore.case = FALSE))
+```
+
+### 5.5 Add new variables with `mutate()`
+
+`mutate()` always adds new columns at the end of your dataset so we'll start by creating a narrower dataset so we can see the new variables. Remember that when you're in RStudio, the easiest way to sell all the columns is 'View()`.
+
+```{r mutate1}
+flights_sml <- select(flights,
+                      year:day,
+                      ends_with("delay"),
+                      distance,
+                      air_time)
+
+mutate(flights_sml, 
+       gain = arr_delay - dep_delay,
+       speed = distance / air_time * 60)
+```
+
+Note that you can refer to columns that you've just created:
+
+```{r mutate2}
+mutate(flights_sml, 
+       gain = arr_delay - dep_delay,
+       hours = air_time / 60,
+       gain_per_hour = gain / hours)
+```
+
+If you only want to keep the new variables, use `transmute()`:
+
+```{r mutate3}
+transmute(flights,
+          gain = arr_delay - dep_delay,
+          hours = air_time / 60,
+          gain_per_hour = gain / hours)
+```
+
+
+#### 5.5.1 Useful creation functions
+
+* Arithmetic operators: `+`, `-`, `*`, `/`, `^`.
+* Useful in conjunction with the aggregate functions. For example, `x / sum(x)` calculates the proportion of a total, and `y - mean(y)` computes the difference from the mean.
+* Modular arithmetic:
+- `%/%` integer division
+- `%%` remainder, where `x = y * (x %/% y) + (x %% y)`. Allows you to break integers into pieces.
+
+```{r transmute1}
+transmute(flights,
+          dep_time,
+          hour = dep_time %/% 100,
+          minute = dep_time %% 100)
+```
+
+* Logs: `log()`, `log2()`, `log10()`. In `log2()` a difference of 1 on the log scale corresponds to doubling on the original scale and a difference of -1 corresponds to halving.
+* Offsets: `lead()` and `lag()`.
+
+```{r offset1}
+(x <- 1:10)
+lag(x)
+lead(x)
+```
+
+*Cummulative and rolling aggregates:
+- `cumsum()`
+- `cumprod()`
+- `cummin()`
+- `cummax()`
+- and `dplyr` provides `cummean()` for cummulative means
+
+```{r cummulative}
+x
+cumsum(x)
+cummean(x)
+```
+
+* Ranking: there are a number of ranking functions, but you should start with `min_rank()`.
+
+```{r ranking}
+y <- c(1, 2, 2, NA, 3, 4)
+min_rank(y)
+min_rank(desc(y))
+```
+
+If `min_rank()` doesn't do what you need, look at the variants:
+
+```{r ranking2}
+row_number(y)
+dense_rank(y)
+percent_rank(y)
+cume_dist(y)
+```
+
+#### 5.5.2 Exercises
+
+1. Currently `dep_time` and `sched_dep_time` are convenient to look at, but hard to compute with because they're not continuous numbers. Convert them to a more convenient represenation of number of minutes since midnight.
+
+```{r mutateex1}
+transmute(flights,
+          dep_time = (dep_time %/% 100) * 60 + dep_time %% 100,
+          sched_dep_time = (sched_dep_time %/% 100) * 60 + sched_dep_time %% 100)
+```
+
+2. Compare `air_time` with `arr_time - dep_time`. What do you expect to see? What do you expect to see? What do you need to do to fix it?
+
+```{r mutateex2}
+transmute(flights,
+          air_time,
+          arr_time,
+          dep_time,
+          air_time_new = arr_time - dep_time)
+```
+
+They are not the same because `dep_time` and `arr_time` are not measured in minutes, but are numberical represenations of the time. we need to convert them to continuous numbers like above to make the correct calculation for `air_time`.
+
+```{r mutateex2.1}
+transmute(flights,
+          air_time,
+          arr_time = (arr_time %/% 100) * 60 + arr_time %% 100,
+          dep_time = (dep_time %/% 100) * 60 + dep_time %% 100,
+          air_time_new = arr_time - dep_time)
+```
+
+3. Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you expect those three numbers to be related?
+
+I expect that `dep_delay` = `dep_time - sched_dep_time`.
+
+```{r mutateex3}
+transmute(flights,
+          dep_time,
+          sched_dep_time,
+          dep_delay,
+          dep_delay_new = dep_time - sched_dep_time)
+```
+
+4. Find the 10 most delayed flights using a ranking function. How do you want to handle ties? Carefully read the documentation for `min_rank()`.
+
+```{r mutateex4}
+delayed <- mutate(flights, most_delayed = min_rank(desc(arr_delay)))
+select(delayed, flight, most_delayed) %>%
+  arrange(most_delayed)
+```
+
+5. What does `1:3 + 1:10` return? Why?
+
+```{r randomex5}
+1:3 + 1:10
+```
+
+Because the two vectors are not the same lenght, R **recycles* the shorter one until each vector is the same length. Then R adds the first elements together, then the second elements, and so on.
+
+6. What trigonometric functions does R provide?
+
+Cosine, sine, tangent, arc-tangent, arc-sine, arc-tangent, and the two-argument arc-tangent.
+
+### 5.6 Grouped summaries with `summarise()`
+
