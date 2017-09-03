@@ -2187,4 +2187,1209 @@ Because the two vectors are not the same lenght, R **recycles* the shorter one u
 Cosine, sine, tangent, arc-tangent, arc-sine, arc-tangent, and the two-argument arc-tangent.
 
 ### 5.6 Grouped summaries with `summarise()`
+
+`summarise()` is the last key verb. It collapses a data frame to a single row:
+
+
+```r
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
 ```
+
+```
+## # A tibble: 1 x 1
+##      delay
+##      <dbl>
+## 1 12.63907
+```
+
+`summarise()` is not very useful unless we pair it with `group_by()`. This changes the unit of analysis from the complete dataset to individual groups.
+
+
+```r
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+```
+
+```
+## # A tibble: 365 x 4
+## # Groups:   year, month [?]
+##     year month   day     delay
+##    <int> <int> <int>     <dbl>
+##  1  2013     1     1 11.548926
+##  2  2013     1     2 13.858824
+##  3  2013     1     3 10.987832
+##  4  2013     1     4  8.951595
+##  5  2013     1     5  5.732218
+##  6  2013     1     6  7.148014
+##  7  2013     1     7  5.417204
+##  8  2013     1     8  2.553073
+##  9  2013     1     9  2.276477
+## 10  2013     1    10  2.844995
+## # ... with 355 more rows
+```
+
+#### 5.6.1 Combining multiple operations with the pipe
+
+
+```r
+by_dest <- group_by(flights, dest)
+delay <- summarise(by_dest,
+                   count = n(),
+                   dist = mean(distance, na.rm = TRUE),
+                   delay = mean(arr_delay, na.rm = TRUE))
+delay <- filter(delay, count > 20, dest != "HNL")
+
+# It looks like delays increse with distance up to ~750 miles
+# and then decrease. Maybe as flights get longer there's more
+# ability to make up delays in the air
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 1/3) +
+  geom_smooth(se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/pipe1-1.png)<!-- -->
+
+A simpler way to tackle this:
+
+```r
+delays <- flights %>%
+  group_by(dest) %>%
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)) %>%
+  filter(count > 20, dest != "HNL")
+```
+  
+Behind the scenes:
+`x %>% f(y)` -> `f(x,y)` and `x %>% f(y) %>% g(z)` -> `g(f(x,y), z)`
+
+#### 5.6.2 Missing values
+
+How to remove missing values. For example, by removing the cancelled flights we can obtain the most exact mean for delays for a day.
+
+
+```r
+not_cancelled <- flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarise(mean = mean(dep_delay))
+```
+
+```
+## # A tibble: 365 x 4
+## # Groups:   year, month [?]
+##     year month   day      mean
+##    <int> <int> <int>     <dbl>
+##  1  2013     1     1 11.435620
+##  2  2013     1     2 13.677802
+##  3  2013     1     3 10.907778
+##  4  2013     1     4  8.965859
+##  5  2013     1     5  5.732218
+##  6  2013     1     6  7.145959
+##  7  2013     1     7  5.417204
+##  8  2013     1     8  2.558296
+##  9  2013     1     9  2.301232
+## 10  2013     1    10  2.844995
+## # ... with 355 more rows
+```
+
+#### 5.6.3 Counts
+
+Whenever you do any aggregation, it's always a good idea to include either a count (`n()`), or  aocunt of non-missing values (`sum(!is.na(x))`). This way you can check that you're not drawing conclusions based on very small amounts of data. For example, let's look at the planes (id by tail number) that have the highest average delays:
+
+
+```r
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+```
+
+![](RDataScience_files/figure-html/counts1-1.png)<!-- -->
+
+Can put everything together by using a combination of `%>%` and `+`.
+
+
+```r
+delays %>% 
+  filter(n > 25) %>% 
+  ggplot(mapping = aes(x = n, y = delay)) + 
+    geom_point(alpha = 1/10)
+```
+
+![](RDataScience_files/figure-html/counts2-1.png)<!-- -->
+
+#### 5.6.4 Useful summary functions
+
+* Measures of location: `mean(x)` and `median(x)`.
+
+
+```r
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    avg_delay1 = mean(arr_delay),
+    avg_delay2 = mean(arr_delay[arr_delay > 0]) # the average positive delay
+  )
+```
+
+```
+## # A tibble: 365 x 5
+## # Groups:   year, month [?]
+##     year month   day avg_delay1 avg_delay2
+##    <int> <int> <int>      <dbl>      <dbl>
+##  1  2013     1     1 12.6510229   32.48156
+##  2  2013     1     2 12.6928879   32.02991
+##  3  2013     1     3  5.7333333   27.66087
+##  4  2013     1     4 -1.9328194   28.30976
+##  5  2013     1     5 -1.5258020   22.55882
+##  6  2013     1     6  4.2364294   24.37270
+##  7  2013     1     7 -4.9473118   27.76132
+##  8  2013     1     8 -3.2275785   20.78909
+##  9  2013     1     9 -0.2642777   25.63415
+## 10  2013     1    10 -5.8988159   27.34545
+## # ... with 355 more rows
+```
+
+* Measures of spread: `sd(x)`, `IQR(x)`, `mad(x)`.
+
+
+```r
+# Why is distance to some destinations more variable than to others?
+not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(distance_sd = sd(distance)) %>% 
+  arrange(desc(distance_sd))
+```
+
+```
+## # A tibble: 104 x 2
+##     dest distance_sd
+##    <chr>       <dbl>
+##  1   EGE   10.542765
+##  2   SAN   10.350094
+##  3   SFO   10.216017
+##  4   HNL   10.004197
+##  5   SEA    9.977993
+##  6   LAS    9.907786
+##  7   PDX    9.873299
+##  8   PHX    9.862546
+##  9   LAX    9.657195
+## 10   IND    9.458066
+## # ... with 94 more rows
+```
+
+* Measures of rank: `min(x)`, `quantile(x, 0.25)`, `max(x)`. `quantile(x, 0.25)` will find a value of `x` that is gretaer than 25%, and les than the remaining 75%.
+
+
+```r
+# When do the first and last flights leave each day?
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    first = min(dep_time),
+    last = max(dep_time)
+  )
+```
+
+```
+## # A tibble: 365 x 5
+## # Groups:   year, month [?]
+##     year month   day first  last
+##    <int> <int> <int> <dbl> <dbl>
+##  1  2013     1     1   517  2356
+##  2  2013     1     2    42  2354
+##  3  2013     1     3    32  2349
+##  4  2013     1     4    25  2358
+##  5  2013     1     5    14  2357
+##  6  2013     1     6    16  2355
+##  7  2013     1     7    49  2359
+##  8  2013     1     8   454  2351
+##  9  2013     1     9     2  2252
+## 10  2013     1    10     3  2320
+## # ... with 355 more rows
+```
+
+* Measures of position: `first(x)`, `nth(x,2)`, `last(x)`. These work similarly to `x[1]`, `x[2]`, and `x[length(x)]` but let you set a default value if that position does not exist.
+
+
+```r
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    first_dep = first(dep_time), 
+    last_dep = last(dep_time)
+  )
+```
+
+```
+## # A tibble: 365 x 5
+## # Groups:   year, month [?]
+##     year month   day first_dep last_dep
+##    <int> <int> <int>     <int>    <int>
+##  1  2013     1     1       517     2356
+##  2  2013     1     2        42     2354
+##  3  2013     1     3        32     2349
+##  4  2013     1     4        25     2358
+##  5  2013     1     5        14     2357
+##  6  2013     1     6        16     2355
+##  7  2013     1     7        49     2359
+##  8  2013     1     8       454     2351
+##  9  2013     1     9         2     2252
+## 10  2013     1    10         3     2320
+## # ... with 355 more rows
+```
+
+```r
+# These functions are complementary to filtering on ranks.
+# Filtering gives you all variables, with each obs in a separate row
+
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  mutate(r = min_rank(desc(dep_time))) %>% 
+  filter(r %in% range(r))
+```
+
+```
+## # A tibble: 770 x 20
+## # Groups:   year, month, day [365]
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1      517            515         2      830
+##  2  2013     1     1     2356           2359        -3      425
+##  3  2013     1     2       42           2359        43      518
+##  4  2013     1     2     2354           2359        -5      413
+##  5  2013     1     3       32           2359        33      504
+##  6  2013     1     3     2349           2359       -10      434
+##  7  2013     1     4       25           2359        26      505
+##  8  2013     1     4     2358           2359        -1      429
+##  9  2013     1     4     2358           2359        -1      436
+## 10  2013     1     5       14           2359        15      503
+## # ... with 760 more rows, and 13 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>, r <int>
+```
+
+* Counts: `n()`, `sum(!is.na(x))`, and `n_distinct(x)` counts the number of unique values.
+
+
+```r
+# Which destinations have the most carriers?
+not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(carriers = n_distinct(carrier)) %>% 
+  arrange(desc(carriers))
+```
+
+```
+## # A tibble: 104 x 2
+##     dest carriers
+##    <chr>    <int>
+##  1   ATL        7
+##  2   BOS        7
+##  3   CLT        7
+##  4   ORD        7
+##  5   TPA        7
+##  6   AUS        6
+##  7   DCA        6
+##  8   DTW        6
+##  9   IAD        6
+## 10   MSP        6
+## # ... with 94 more rows
+```
+
+* Counts and prop of logical values: `sum(x > 10)`, `mean(y == 0)`.
+
+
+```r
+# How many flights left before 5am? (these usually indicate delayed
+# flights from the previous day)
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(n_early = sum(dep_time < 500))
+```
+
+```
+## # A tibble: 365 x 4
+## # Groups:   year, month [?]
+##     year month   day n_early
+##    <int> <int> <int>   <int>
+##  1  2013     1     1       0
+##  2  2013     1     2       3
+##  3  2013     1     3       4
+##  4  2013     1     4       3
+##  5  2013     1     5       3
+##  6  2013     1     6       2
+##  7  2013     1     7       2
+##  8  2013     1     8       1
+##  9  2013     1     9       3
+## 10  2013     1    10       3
+## # ... with 355 more rows
+```
+
+#### 5.6.5 Grouping by multiple variables
+
+
+```r
+daily <- group_by(flights, year, month, day)
+(per_day   <- summarise(daily, flights = n()))
+```
+
+```
+## # A tibble: 365 x 4
+## # Groups:   year, month [?]
+##     year month   day flights
+##    <int> <int> <int>   <int>
+##  1  2013     1     1     842
+##  2  2013     1     2     943
+##  3  2013     1     3     914
+##  4  2013     1     4     915
+##  5  2013     1     5     720
+##  6  2013     1     6     832
+##  7  2013     1     7     933
+##  8  2013     1     8     899
+##  9  2013     1     9     902
+## 10  2013     1    10     932
+## # ... with 355 more rows
+```
+
+```r
+(per_month <- summarise(per_day, flights = sum(flights)))
+```
+
+```
+## # A tibble: 12 x 3
+## # Groups:   year [?]
+##     year month flights
+##    <int> <int>   <int>
+##  1  2013     1   27004
+##  2  2013     2   24951
+##  3  2013     3   28834
+##  4  2013     4   28330
+##  5  2013     5   28796
+##  6  2013     6   28243
+##  7  2013     7   29425
+##  8  2013     8   29327
+##  9  2013     9   27574
+## 10  2013    10   28889
+## 11  2013    11   27268
+## 12  2013    12   28135
+```
+
+```r
+(per_year  <- summarise(per_month, flights = sum(flights)))
+```
+
+```
+## # A tibble: 1 x 2
+##    year flights
+##   <int>   <int>
+## 1  2013  336776
+```
+
+#### 5.6.6 Ungrouping
+
+Use `ungroup()`.
+
+
+```r
+daily %>% 
+  ungroup() %>%             # no longer grouped by date
+  summarise(flights = n())  # all flights
+```
+
+```
+## # A tibble: 1 x 1
+##   flights
+##     <int>
+## 1  336776
+```
+
+#### 5.6.7 Exercises
+
+1. Brainstorm at least 5 different ways to assess the typical delay characteristics of a group of flights. Consider the following scenarios:
+
+* A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time.
+* A flight is always 10 minutes late
+* A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.
+* 99% of the time a flight is on time. 1% of the time it's 2 hours late.
+
+
+```r
+# A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time.
+flights %>%
+  group_by(flight) %>%
+  summarise(early_15_min = sum(arr_delay <= -15, na.rm = TRUE) / n(),
+            late_15_min = sum(arr_delay >= 15, na.rm = TRUE) / n()) %>%
+  filter(early_15_min == 0.5,
+         late_15_min == 0.5)
+```
+
+```
+## # A tibble: 18 x 3
+##    flight early_15_min late_15_min
+##     <int>        <dbl>       <dbl>
+##  1    107          0.5         0.5
+##  2   2072          0.5         0.5
+##  3   2366          0.5         0.5
+##  4   2500          0.5         0.5
+##  5   2552          0.5         0.5
+##  6   3495          0.5         0.5
+##  7   3518          0.5         0.5
+##  8   3544          0.5         0.5
+##  9   3651          0.5         0.5
+## 10   3705          0.5         0.5
+## 11   3916          0.5         0.5
+## 12   3951          0.5         0.5
+## 13   4273          0.5         0.5
+## 14   4313          0.5         0.5
+## 15   5297          0.5         0.5
+## 16   5322          0.5         0.5
+## 17   5388          0.5         0.5
+## 18   5505          0.5         0.5
+```
+
+```r
+# A flight is always 10 minutes late.
+flights %>%
+  group_by(flight) %>%
+  summarise(late_10 = sum(arr_delay == 10, na.rm = TRUE) / n()) %>%
+  filter(late_10 == 1)
+```
+
+```
+## # A tibble: 4 x 2
+##   flight late_10
+##    <int>   <dbl>
+## 1   2254       1
+## 2   3656       1
+## 3   3880       1
+## 4   5854       1
+```
+
+```r
+# A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.
+flights %>%
+  group_by(flight) %>%
+  summarise(early_30_min = sum(arr_delay <= -30, na.rm = TRUE) / n(),
+            late_30_min = sum(arr_delay >= 30, na.rm = TRUE) / n()) %>%
+  filter(early_30_min == 0.5,
+         late_30_min == 0.5)
+```
+
+```
+## # A tibble: 3 x 3
+##   flight early_30_min late_30_min
+##    <int>        <dbl>       <dbl>
+## 1   3651          0.5         0.5
+## 2   3916          0.5         0.5
+## 3   3951          0.5         0.5
+```
+
+```r
+# 99% of the time a flight is on time. 1% of the time it's 2 hours late.
+flights %>%
+  group_by(flight) %>%
+  summarise(on_time = sum(arr_delay == 0, na.rm = TRUE) / n(),
+            late_2_hours = sum(arr_delay >= 120, na.rm = TRUE) / n()) %>%
+  filter(on_time == .99,
+         late_2_hours == .01)
+```
+
+```
+## # A tibble: 0 x 3
+## # ... with 3 variables: flight <int>, on_time <dbl>, late_2_hours <dbl>
+```
+
+Which is more important: `arr_delay` or `dep_delay`?
+
+Delay type importance depends on individual preference. If an individual hates waiting in the terminal for the flight to take off, then `dep_delay` is more important and vice versa.
+
+2. Come up with another approach that will give you the same output as `not_cancelled %>% count(dest)` and `not_cancelled %>% count(tailnum, wt = distance)`. No using `count()`.
+
+
+```r
+not_cancelled <- flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+# original
+not_cancelled %>%
+  count(dest)
+```
+
+```
+## # A tibble: 104 x 2
+##     dest     n
+##    <chr> <int>
+##  1   ABQ   254
+##  2   ACK   264
+##  3   ALB   418
+##  4   ANC     8
+##  5   ATL 16837
+##  6   AUS  2411
+##  7   AVL   261
+##  8   BDL   412
+##  9   BGR   358
+## 10   BHM   269
+## # ... with 94 more rows
+```
+
+```r
+# new
+not_cancelled %>%
+  group_by(dest) %>%
+  summarise(n = n())
+```
+
+```
+## # A tibble: 104 x 2
+##     dest     n
+##    <chr> <int>
+##  1   ABQ   254
+##  2   ACK   264
+##  3   ALB   418
+##  4   ANC     8
+##  5   ATL 16837
+##  6   AUS  2411
+##  7   AVL   261
+##  8   BDL   412
+##  9   BGR   358
+## 10   BHM   269
+## # ... with 94 more rows
+```
+
+```r
+# original2
+not_cancelled %>%
+  count(tailnum, wt = distance)
+```
+
+```
+## # A tibble: 4,037 x 2
+##    tailnum      n
+##      <chr>  <dbl>
+##  1  D942DN   3418
+##  2  N0EGMQ 239143
+##  3  N10156 109664
+##  4  N102UW  25722
+##  5  N103US  24619
+##  6  N104UW  24616
+##  7  N10575 139903
+##  8  N105UW  23618
+##  9  N107US  21677
+## 10  N108UW  32070
+## # ... with 4,027 more rows
+```
+
+```r
+# new2
+not_cancelled %>%
+  group_by(tailnum) %>%
+  summarise(n = sum(distance, na.rm = TRUE))
+```
+
+```
+## # A tibble: 4,037 x 2
+##    tailnum      n
+##      <chr>  <dbl>
+##  1  D942DN   3418
+##  2  N0EGMQ 239143
+##  3  N10156 109664
+##  4  N102UW  25722
+##  5  N103US  24619
+##  6  N104UW  24616
+##  7  N10575 139903
+##  8  N105UW  23618
+##  9  N107US  21677
+## 10  N108UW  32070
+## # ... with 4,027 more rows
+```
+
+3. Our definition of cancelled flights (`is.na(dep_delay) | is.na(arr_delay)`) is slightly suboptimal. Why? Which is the most important column?
+
+There are no flights which arrived but did not depart, so we can just use `!is.na(dep_delay)`.
+
+4. Look at the number of cancelled flights per day. Is there a pattern? Is the proportion of cancelled flights related to the average delay?
+
+
+```r
+flights %>%
+  filter(is.na(dep_delay)) %>%
+  count(day)
+```
+
+```
+## # A tibble: 31 x 2
+##      day     n
+##    <int> <int>
+##  1     1   246
+##  2     2   250
+##  3     3   109
+##  4     4    82
+##  5     5   226
+##  6     6   296
+##  7     7   318
+##  8     8   921
+##  9     9   593
+## 10    10   535
+## # ... with 21 more rows
+```
+
+```r
+flights %>%
+  group_by(day) %>%
+  summarise(prop_canceled = sum(is.na(dep_delay)) / n(),
+            avg_delay = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot(mapping = aes(x = avg_delay, y = prop_canceled)) +
+  geom_point() + 
+  geom_smooth(se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](RDataScience_files/figure-html/summariseex4-1.png)<!-- -->
+
+5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about `flights %>% group_by(carrier, dest) %>% summarise(n())`)
+
+
+```r
+# worst delays
+flights %>%
+  group_by(carrier) %>%
+  summarize(mean_delay = mean(arr_delay, na.rm = TRUE)) %>%
+  arrange(desc(mean_delay))
+```
+
+```
+## # A tibble: 16 x 2
+##    carrier mean_delay
+##      <chr>      <dbl>
+##  1      F9 21.9207048
+##  2      FL 20.1159055
+##  3      EV 15.7964311
+##  4      YV 15.5569853
+##  5      OO 11.9310345
+##  6      MQ 10.7747334
+##  7      WN  9.6491199
+##  8      B6  9.4579733
+##  9      9E  7.3796692
+## 10      UA  3.5580111
+## 11      US  2.1295951
+## 12      VX  1.7644644
+## 13      DL  1.6443409
+## 14      AA  0.3642909
+## 15      HA -6.9152047
+## 16      AS -9.9308886
+```
+
+```r
+# challenge: bad airports vs. bad carriers
+flights %>%
+  group_by(carrier, dest) %>%
+  summarize(mean_delay = mean(arr_delay, na.rm = TRUE)) %>%
+  group_by(carrier) %>%
+  summarize(mean_delay_mad = mad(mean_delay, na.rm = TRUE)) %>%
+  arrange(desc(mean_delay_mad))
+```
+
+```
+## # A tibble: 16 x 2
+##    carrier mean_delay_mad
+##      <chr>          <dbl>
+##  1      VX      12.390156
+##  2      OO      10.519400
+##  3      YV       8.974067
+##  4      9E       8.197407
+##  5      EV       7.094112
+##  6      DL       7.002298
+##  7      UA       5.043940
+##  8      US       5.034137
+##  9      B6       4.995649
+## 10      WN       4.506001
+## 11      AA       3.311529
+## 12      MQ       2.879322
+## 13      FL       1.551060
+## 14      AS       0.000000
+## 15      F9       0.000000
+## 16      HA       0.000000
+```
+
+6. What does the `sort` argument to `count()` do. When might you use it?
+
+The `sort` argument sorts the results of `count()` in descending order of `n`. Might use this if plan to use `arrange()`, will save a line of code.
+
+### 5.7 Grouped mutates (and filters)
+
+* Find the worst members of each group:
+
+```r
+flights_sml %>% 
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
+```
+
+```
+## # A tibble: 3,306 x 7
+## # Groups:   year, month, day [365]
+##     year month   day dep_delay arr_delay distance air_time
+##    <int> <int> <int>     <dbl>     <dbl>    <dbl>    <dbl>
+##  1  2013     1     1       853       851      184       41
+##  2  2013     1     1       290       338     1134      213
+##  3  2013     1     1       260       263      266       46
+##  4  2013     1     1       157       174      213       60
+##  5  2013     1     1       216       222      708      121
+##  6  2013     1     1       255       250      589      115
+##  7  2013     1     1       285       246     1085      146
+##  8  2013     1     1       192       191      199       44
+##  9  2013     1     1       379       456     1092      222
+## 10  2013     1     2       224       207      550       94
+## # ... with 3,296 more rows
+```
+
+* find all groups bigger than a threshold
+
+```r
+popular_dests <- flights %>% 
+  group_by(dest) %>% 
+  filter(n() > 365)
+popular_dests
+```
+
+```
+## # A tibble: 332,577 x 19
+## # Groups:   dest [77]
+##     year month   day dep_time sched_dep_time dep_delay arr_time
+##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
+##  1  2013     1     1      517            515         2      830
+##  2  2013     1     1      533            529         4      850
+##  3  2013     1     1      542            540         2      923
+##  4  2013     1     1      544            545        -1     1004
+##  5  2013     1     1      554            600        -6      812
+##  6  2013     1     1      554            558        -4      740
+##  7  2013     1     1      555            600        -5      913
+##  8  2013     1     1      557            600        -3      709
+##  9  2013     1     1      557            600        -3      838
+## 10  2013     1     1      558            600        -2      753
+## # ... with 332,567 more rows, and 12 more variables: sched_arr_time <int>,
+## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+## #   minute <dbl>, time_hour <dttm>
+```
+
+* Standardise to compute per group metrics:
+
+```r
+popular_dests %>% 
+  filter(arr_delay > 0) %>% 
+  mutate(prop_delay = arr_delay / sum(arr_delay)) %>% 
+  select(year:day, dest, arr_delay, prop_delay)
+```
+
+```
+## # A tibble: 131,106 x 6
+## # Groups:   dest [77]
+##     year month   day  dest arr_delay   prop_delay
+##    <int> <int> <int> <chr>     <dbl>        <dbl>
+##  1  2013     1     1   IAH        11 1.106740e-04
+##  2  2013     1     1   IAH        20 2.012255e-04
+##  3  2013     1     1   MIA        33 2.350026e-04
+##  4  2013     1     1   ORD        12 4.239594e-05
+##  5  2013     1     1   FLL        19 9.377853e-05
+##  6  2013     1     1   ORD         8 2.826396e-05
+##  7  2013     1     1   LAX         7 3.444441e-05
+##  8  2013     1     1   DFW        31 2.817951e-04
+##  9  2013     1     1   ATL        12 3.996017e-05
+## 10  2013     1     1   DTW        16 1.157257e-04
+## # ... with 131,096 more rows
+```
+
+#### 5.7.1 Exercises
+
+1. Useful mutate and filtering functions.
+2. Which plane (`tailnum`) has the worst on-time record? "on-time" -> arriving within 30 minutes of sched arrival.
+
+
+```r
+flights %>%
+  group_by(tailnum) %>%
+  summarize(prop_on_time = sum(arr_delay <= 30, na.rm = TRUE) / n(),
+            mean_arr_delay = mean(arr_delay, na.rm = TRUE),
+            flights = n()) %>%
+  arrange(prop_on_time, desc(mean_arr_delay))
+```
+
+```
+## # A tibble: 4,044 x 4
+##    tailnum prop_on_time mean_arr_delay flights
+##      <chr>        <dbl>          <dbl>   <int>
+##  1  N844MH            0            320       1
+##  2  N911DA            0            294       1
+##  3  N922EV            0            276       1
+##  4  N587NW            0            264       1
+##  5  N851NW            0            219       1
+##  6  N928DN            0            201       1
+##  7  N7715E            0            188       1
+##  8  N654UA            0            185       1
+##  9  N427SW            0            157       1
+## 10  N136DL            0            146       1
+## # ... with 4,034 more rows
+```
+
+3. What time of day should you fly if you want to avoid delays as much as possible?
+
+
+```r
+flights %>%
+  group_by(hour) %>%
+  summarize(arr_delay = sum(arr_delay > 5, na.rm = TRUE) / n()) %>%
+  ggplot(aes(x = hour, y = arr_delay)) +
+  geom_col()
+```
+
+![](RDataScience_files/figure-html/gpex3-1.png)<!-- -->
+
+Avoid flying in the evening to minimize your arrival delay.
+
+5. Delays are typically temporally correlated: even once the problem that caused the initial delay has been resolved, later flights are delayed to allow earlier flights to leave. Using lag() explore how the delay of a flight is related to the delay of the immediately preceding flight.
+
+
+```r
+flights %>%
+  group_by(origin) %>%
+  arrange(year, month, day, hour, minute) %>%
+  mutate(prev_dep_delay = lag(dep_delay)) %>%
+  ggplot(aes(x = prev_dep_delay, y = dep_delay)) +
+  geom_point() +
+  geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'gam'
+```
+
+```
+## Warning: Removed 14383 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 14383 rows containing missing values (geom_point).
+```
+
+![](RDataScience_files/figure-html/gpex5-1.png)<!-- -->
+
+## 7 Exploratory Data Analysis
+
+#### 7.3.4 Exercises
+
+1. Explore the distribution of each of the x, y, and z variables in diamonds. What do you learn? Think about a diamond and how you might decide which dimension is the length, width, and depth.
+
+
+```r
+ggplot(diamonds, aes(x)) +
+  geom_histogram()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](RDataScience_files/figure-html/expex1-1.png)<!-- -->
+
+```r
+ggplot(diamonds, aes(y)) +
+  geom_histogram()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](RDataScience_files/figure-html/expex1-2.png)<!-- -->
+
+```r
+ggplot(diamonds, aes(z)) +
+  geom_histogram()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](RDataScience_files/figure-html/expex1-3.png)<!-- -->
+
+2. Explore the distribution of price. Do you discover anything unusual or surprising? (Hint: Carefully think about the binwidth and make sure you try a wide range of values.)
+
+
+```r
+# default binwidth
+ggplot(diamonds, aes(price)) +
+  geom_histogram()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](RDataScience_files/figure-html/expex2-1.png)<!-- -->
+
+```r
+# binwidth = 100
+ggplot(diamonds, aes(price)) +
+  geom_histogram(binwidth = 100) +
+  scale_x_continuous(breaks = seq(0, 20000, by = 1000))
+```
+
+![](RDataScience_files/figure-html/expex2-2.png)<!-- -->
+
+There are far fewer diamonds priced at $1500 compared to other price points. This is not apparent using the default number of bins.
+
+3.How many diamonds are 0.99 carat? How many are 1 carat? What do you think is the cause of the difference?
+
+
+```r
+ggplot(diamonds, aes(carat)) +
+  geom_histogram(binwidth = .01) +
+  coord_cartesian(xlim = c(.97, 1.03))
+```
+
+![](RDataScience_files/figure-html/expex3-1.png)<!-- -->
+
+More 1.00 carat diamonds than .99 diamonds. As it doesn't make much sense to buy a .99 carat diamond if you can get a 1.00 carat diamond for a little bit more money.
+
+4. Compare and contrast coord_cartesian() vs xlim() or ylim() when zooming in on a histogram. What happens if you leave binwidth unset? What happens if you try and zoom so only half a bar shows?
+
+
+```r
+# full plot
+ggplot(diamonds, aes(carat, price)) +
+  geom_point() +
+  geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'gam'
+```
+
+![](RDataScience_files/figure-html/expex4-1.png)<!-- -->
+
+```r
+# xlim
+ggplot(diamonds, aes(carat, price)) +
+  geom_point() +
+  geom_smooth() +
+  xlim(1, 3)
+```
+
+```
+## `geom_smooth()` using method = 'gam'
+```
+
+```
+## Warning: Removed 34912 rows containing non-finite values (stat_smooth).
+```
+
+```
+## Warning: Removed 34912 rows containing missing values (geom_point).
+```
+
+![](RDataScience_files/figure-html/expex4-2.png)<!-- -->
+
+```r
+# coord_cartesian
+ggplot(diamonds, aes(carat, price)) +
+  geom_point() +
+  geom_smooth() +
+  coord_cartesian(xlim = c(1, 3))
+```
+
+```
+## `geom_smooth()` using method = 'gam'
+```
+
+![](RDataScience_files/figure-html/expex4-3.png)<!-- -->
+
+By using xlim() or ylim(), you remove all observations which exceed these values so they are not used to generate the plot. By using coord_cartesian(), those values are used to generate the plot and are merely cut off when zooming in. Note the change in the smoothing line in the xlim() example because it doesn’t have all the data points to calculate the line.
+
+### 7.4 Missing values
+
+Recommend replacing unusual values with missing values. Easiest way to do it is to use `mutate()` and `ifelse()`.
+
+
+```r
+diamonds2 <- diamonds %>% 
+  mutate(y = ifelse(y < 3 | y > 20, NA, y))
+```
+
+What does `na.rm = TRUE` do in `mean()` and `sum()`?
+
+It strips missing values before computing the statistic.
+
+### 7.5 Covariation
+
+#### 7.5.1.1 Exercises
+
+1. Use what you’ve learned to improve the visualisation of the departure times of cancelled vs. non-cancelled flights.
+
+
+```r
+# original chart
+flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+    ) %>%
+  ggplot(mapping = aes(sched_dep_time)) + 
+  geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
+```
+
+![](RDataScience_files/figure-html/covarex1-1.png)<!-- -->
+
+```r
+# revised chart
+flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+    ) %>%
+  ggplot(aes(x = sched_dep_time, y = ..density.., color = cancelled)) + 
+  geom_freqpoly(binwidth = 1/4)
+```
+
+![](RDataScience_files/figure-html/covarex1-2.png)<!-- -->
+
+2. What variable in the diamonds dataset is most important for predicting the price of a diamond? How is that variable correlated with cut? Why does the combination of those two relationships lead to lower quality diamonds being more expensive?
+
+
+```r
+ggplot(diamonds, aes(carat, price)) +
+  geom_point() +
+  geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'gam'
+```
+
+![](RDataScience_files/figure-html/covarex2-1.png)<!-- -->
+
+```r
+ggplot(diamonds, aes(cut, carat)) +
+  geom_boxplot()
+```
+
+![](RDataScience_files/figure-html/covarex2-2.png)<!-- -->
+
+Carat size is the most important predictor of price. On avg, fair and good cut diamonds are larger than premium and ideal cuts.
+
+3. Install the ggstance package, and create a horizontal boxplot. How does this compare to using coord_flip()?
+
+To create a horizontal layer in ggplot2 with coord_flip(), you have to supply aesthetics as if they were to be drawn vertically:
+
+
+```r
+ggplot(diamonds, aes(cut, carat)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+![](RDataScience_files/figure-html/covarex3-1.png)<!-- -->
+
+```r
+# In ggstance, you supply aesthetics in their natural order
+library(ggstance)
+```
+
+```
+## 
+## Attaching package: 'ggstance'
+```
+
+```
+## The following objects are masked from 'package:ggplot2':
+## 
+##     geom_errorbarh, GeomErrorbarh
+```
+
+```r
+ggplot(diamonds, aes(carat, cut)) +
+  geom_boxploth()
+```
+
+![](RDataScience_files/figure-html/covarex3-2.png)<!-- -->
+
+4. One problem with boxplots is that they were developed in an era of much smaller datasets and tend to display a prohibitively large number of “outlying values”. One approach to remedy this problem is the letter value plot. Install the lvplot package, and try using geom_lv() to display the distribution of price vs cut. What do you learn? How do you interpret the plots?
+
+
+```r
+library(lvplot)
+
+# with boxplot
+ggplot(diamonds, aes(cut, price)) +
+  geom_boxplot()
+```
+
+![](RDataScience_files/figure-html/covarex4-1.png)<!-- -->
+
+```r
+# with lvplot 
+ggplot(diamonds, aes(cut, price)) +
+  geom_lv()
+```
+
+![](RDataScience_files/figure-html/covarex4-2.png)<!-- -->
+
+5. Compare and contrast geom_violin() with a facetted geom_histogram(), or a coloured geom_freqpoly(). What are the pros and cons of each method?
+
+
+```r
+# geom_violin
+ggplot(diamonds, aes(cut, price)) +
+  geom_violin()
+```
+
+![](RDataScience_files/figure-html/covarex5-1.png)<!-- -->
+
+```r
+# faceted geom_histogram
+ggplot(diamonds, aes(price)) +
+  geom_histogram() +
+  facet_grid(. ~ cut)
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](RDataScience_files/figure-html/covarex5-2.png)<!-- -->
+
+```r
+# colored geom_freqpoly
+ggplot(diamonds, aes(price, color = cut)) +
+  geom_freqpoly()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+![](RDataScience_files/figure-html/covarex5-3.png)<!-- -->
+
