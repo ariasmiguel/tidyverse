@@ -1801,3 +1801,131 @@ parse_time(t1, "%H%M")
 # Seven
 t2 <- "11:15:10.12 PM"
 parse_time(t2, "%I:%M:%OS %p")
+```
+
+### 11.5 Writing to a file
+
+Can use `write_csv()` and `write_tsv()`.
+
+## 12 Tidy data
+
+There are three interrelated rules which make a dataset tidy:
+
+1. Each variable must have its own column
+2. Each observation must have its own row
+3. Each value must have its own cell
+
+Tidy data facilitates transforming it.
+
+```{r tidydata1}
+# Compute rate per 10,000
+table1 %>%
+  mutate(rate = cases / population * 10000)
+
+# Compute cases per year
+table1 %>%
+  count(year, wt = cases)
+
+# Visualise changes over time
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+```
+
+### 12.3 Spreading and gathering
+
+```{r gather1}
+table4a
+```
+
+Need to `gather()` the columns into a new pair of variables.
+
+```{r gather2}
+table4a %>%
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+
+```{r gather3}
+table4b %>%
+  gather(`1999`, `2000`, key = "year", value = "population")
+```
+
+To combine the tidied versions of `table4a` and `table4b` into a single tibble, we need to use `dplyr::left_join()`.
+
+```{r gather4}
+tidy4a <- table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+tidy4b <- table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+left_join(tidy4a, tidy4b)
+```
+
+#### 12.3.2 Spreading
+
+Spreading is the opposite of gathering
+
+```{r spread1}
+spread(table2, key = type, value = count)
+```
+
+### 12.4 Separating and uniting
+
+**Separate**
+
+`separate()` pulls apart one column into multiple columns.
+
+```{r separate1}
+table3 %>%
+  separate(rate, into = c("cases", "population"))
+```
+
+Can determine what makes the separationg with 
+
+`sep = "/"`, or whatever the separator is.
+
+By using `convert = TRUE`, `separate()` converts the data into better types.
+
+**Unite**
+
+`unite()` is the inverse of separate.
+
+Can be used to rejoin data.
+
+```{r unite1}
+table5 %>%
+  unite(new, century, year, sep = "")
+```
+
+### 12.5 Missing values
+
+**Explicitly** flagged with `NA`
+**Implicitly** not present in the data
+
+```{r tidymissing}
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+
+# The way that a data set is represented can make implicit values explicit.
+
+stocks %>% 
+  spread(year, return)
+
+# Because they might not be important. You can set na.rm = TRUE in gather().
+
+stocks %>% 
+  spread(year, return) %>% 
+  gather(year, return, `2015`:`2016`, na.rm = TRUE)
+
+# Another tool to make missing values explicit is complete()
+stocks %>%
+  complete(year, qtr)
+```
+
+
+```
+
+

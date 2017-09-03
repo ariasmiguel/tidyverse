@@ -3483,18 +3483,18 @@ tibble(
 
 ```
 ## # A tibble: 1,000 x 5
-##                      a          b     c          d     e
-##                 <dttm>     <date> <int>      <dbl> <chr>
-##  1 2017-09-04 01:13:35 2017-09-08     1 0.01017580     c
-##  2 2017-09-04 15:48:52 2017-09-05     2 0.27106636     d
-##  3 2017-09-04 17:58:15 2017-09-10     3 0.97903904     f
-##  4 2017-09-04 04:27:41 2017-09-07     4 0.28450458     u
-##  5 2017-09-04 07:35:56 2017-09-20     5 0.88150777     r
-##  6 2017-09-03 22:06:21 2017-09-15     6 0.75677754     k
-##  7 2017-09-04 00:07:19 2017-09-17     7 0.61153831     e
-##  8 2017-09-04 17:30:18 2017-09-07     8 0.11522333     t
-##  9 2017-09-03 20:41:31 2017-09-05     9 0.01758232     j
-## 10 2017-09-04 11:32:11 2017-09-16    10 0.22874729     y
+##                      a          b     c         d     e
+##                 <dttm>     <date> <int>     <dbl> <chr>
+##  1 2017-09-03 23:49:51 2017-09-30     1 0.1843551     g
+##  2 2017-09-04 03:41:02 2017-09-09     2 0.1276734     x
+##  3 2017-09-04 01:26:43 2017-09-10     3 0.5658232     j
+##  4 2017-09-04 02:33:11 2017-09-14     4 0.1145124     z
+##  5 2017-09-04 08:45:38 2017-09-21     5 0.1644923     x
+##  6 2017-09-04 10:14:03 2017-09-27     6 0.4028472     c
+##  7 2017-09-03 21:32:19 2017-09-25     7 0.6253489     w
+##  8 2017-09-04 02:18:11 2017-09-05     8 0.2216783     n
+##  9 2017-09-04 10:40:25 2017-09-23     9 0.4402216     b
+## 10 2017-09-04 02:33:51 2017-09-30    10 0.4046498     n
 ## # ... with 990 more rows
 ```
 
@@ -3522,7 +3522,7 @@ df$x
 ```
 
 ```
-## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
+## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
 ```
 
 ```r
@@ -3530,7 +3530,7 @@ df[["x"]]
 ```
 
 ```
-## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
+## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
 ```
 
 ```r
@@ -3539,7 +3539,7 @@ df[[1]]
 ```
 
 ```
-## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
+## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
 ```
 
 Can be used in a pipe. Only need to use the special placeholder `.`:
@@ -3549,7 +3549,7 @@ df %>% .$x
 ```
 
 ```
-## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
+## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
 ```
 
 ```r
@@ -3557,7 +3557,7 @@ df %>% .[["x"]]
 ```
 
 ```
-## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
+## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
 ```
 
 Some older functions don't work with tibbles. Need to use `as.data.frame()`
@@ -3700,16 +3700,16 @@ ggplot(annoying, aes(`1`, `2`)) +
 ## # A tibble: 10 x 3
 ##      `1`       `2`      `3`
 ##    <int>     <dbl>    <dbl>
-##  1     1  2.789902 2.789902
-##  2     2  2.035615 1.017808
-##  3     3  7.023018 2.341006
-##  4     4  8.425647 2.106412
-##  5     5  9.529924 1.905985
-##  6     6 11.482911 1.913818
-##  7     7 11.805388 1.686484
-##  8     8 15.622929 1.952866
-##  9     9 18.637661 2.070851
-## 10    10 20.130508 2.013051
+##  1     1  3.942549 3.942549
+##  2     2  2.884609 1.442305
+##  3     3  5.380182 1.793394
+##  4     4  5.826451 1.456613
+##  5     5  9.266687 1.853337
+##  6     6  8.256023 1.376004
+##  7     7 13.900340 1.985763
+##  8     8 16.186496 2.023312
+##  9     9 17.494445 1.943827
+## 10    10 20.348629 2.034863
 ```
 
 ```r
@@ -3724,16 +3724,16 @@ rename(annoying,
 ## # A tibble: 10 x 3
 ##      one       two    three
 ##    <int>     <dbl>    <dbl>
-##  1     1  2.789902 2.789902
-##  2     2  2.035615 1.017808
-##  3     3  7.023018 2.341006
-##  4     4  8.425647 2.106412
-##  5     5  9.529924 1.905985
-##  6     6 11.482911 1.913818
-##  7     7 11.805388 1.686484
-##  8     8 15.622929 1.952866
-##  9     9 18.637661 2.070851
-## 10    10 20.130508 2.013051
+##  1     1  3.942549 3.942549
+##  2     2  2.884609 1.442305
+##  3     3  5.380182 1.793394
+##  4     4  5.826451 1.456613
+##  5     5  9.266687 1.853337
+##  6     6  8.256023 1.376004
+##  7     7 13.900340 1.985763
+##  8     8 16.186496 2.023312
+##  9     9 17.494445 1.943827
+## 10    10 20.348629 2.034863
 ```
 
 5. What does `tibble::enframe()` do? When might you use it?
@@ -4094,3 +4094,290 @@ parse_time(t2, "%I:%M:%OS %p")
 ```
 ## 23:15:10.12
 ```
+
+### 11.5 Writing to a file
+
+Can use `write_csv()` and `write_tsv()`.
+
+## 12 Tidy data
+
+There are three interrelated rules which make a dataset tidy:
+
+1. Each variable must have its own column
+2. Each observation must have its own row
+3. Each value must have its own cell
+
+Tidy data facilitates transforming it.
+
+
+```r
+# Compute rate per 10,000
+table1 %>%
+  mutate(rate = cases / population * 10000)
+```
+
+```
+## # A tibble: 6 x 5
+##       country  year  cases population     rate
+##         <chr> <int>  <int>      <int>    <dbl>
+## 1 Afghanistan  1999    745   19987071 0.372741
+## 2 Afghanistan  2000   2666   20595360 1.294466
+## 3      Brazil  1999  37737  172006362 2.193930
+## 4      Brazil  2000  80488  174504898 4.612363
+## 5       China  1999 212258 1272915272 1.667495
+## 6       China  2000 213766 1280428583 1.669488
+```
+
+```r
+# Compute cases per year
+table1 %>%
+  count(year, wt = cases)
+```
+
+```
+## # A tibble: 2 x 2
+##    year      n
+##   <int>  <int>
+## 1  1999 250740
+## 2  2000 296920
+```
+
+```r
+# Visualise changes over time
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+```
+
+![](RDataScience_files/figure-html/tidydata1-1.png)<!-- -->
+
+### 12.3 Spreading and gathering
+
+
+```r
+table4a
+```
+
+```
+## # A tibble: 3 x 3
+##       country `1999` `2000`
+## *       <chr>  <int>  <int>
+## 1 Afghanistan    745   2666
+## 2      Brazil  37737  80488
+## 3       China 212258 213766
+```
+
+Need to `gather()` the columns into a new pair of variables.
+
+
+```r
+table4a %>%
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+
+```
+## # A tibble: 6 x 3
+##       country  year  cases
+##         <chr> <chr>  <int>
+## 1 Afghanistan  1999    745
+## 2      Brazil  1999  37737
+## 3       China  1999 212258
+## 4 Afghanistan  2000   2666
+## 5      Brazil  2000  80488
+## 6       China  2000 213766
+```
+
+
+```r
+table4b %>%
+  gather(`1999`, `2000`, key = "year", value = "population")
+```
+
+```
+## # A tibble: 6 x 3
+##       country  year population
+##         <chr> <chr>      <int>
+## 1 Afghanistan  1999   19987071
+## 2      Brazil  1999  172006362
+## 3       China  1999 1272915272
+## 4 Afghanistan  2000   20595360
+## 5      Brazil  2000  174504898
+## 6       China  2000 1280428583
+```
+
+To combine the tidied versions of `table4a` and `table4b` into a single tibble, we need to use `dplyr::left_join()`.
+
+
+```r
+tidy4a <- table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+tidy4b <- table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+left_join(tidy4a, tidy4b)
+```
+
+```
+## Joining, by = c("country", "year")
+```
+
+```
+## # A tibble: 6 x 4
+##       country  year  cases population
+##         <chr> <chr>  <int>      <int>
+## 1 Afghanistan  1999    745   19987071
+## 2      Brazil  1999  37737  172006362
+## 3       China  1999 212258 1272915272
+## 4 Afghanistan  2000   2666   20595360
+## 5      Brazil  2000  80488  174504898
+## 6       China  2000 213766 1280428583
+```
+
+#### 12.3.2 Spreading
+
+Spreading is the opposite of gathering
+
+
+```r
+spread(table2, key = type, value = count)
+```
+
+```
+## # A tibble: 6 x 4
+##       country  year  cases population
+## *       <chr> <int>  <int>      <int>
+## 1 Afghanistan  1999    745   19987071
+## 2 Afghanistan  2000   2666   20595360
+## 3      Brazil  1999  37737  172006362
+## 4      Brazil  2000  80488  174504898
+## 5       China  1999 212258 1272915272
+## 6       China  2000 213766 1280428583
+```
+
+### 12.4 Separating and uniting
+
+**Separate**
+
+`separate()` pulls apart one column into multiple columns.
+
+
+```r
+table3 %>%
+  separate(rate, into = c("cases", "population"))
+```
+
+```
+## # A tibble: 6 x 4
+##       country  year  cases population
+## *       <chr> <int>  <chr>      <chr>
+## 1 Afghanistan  1999    745   19987071
+## 2 Afghanistan  2000   2666   20595360
+## 3      Brazil  1999  37737  172006362
+## 4      Brazil  2000  80488  174504898
+## 5       China  1999 212258 1272915272
+## 6       China  2000 213766 1280428583
+```
+
+Can determine what makes the separationg with 
+
+`sep = "/"`, or whatever the separator is.
+
+By using `convert = TRUE`, `separate()` converts the data into better types.
+
+**Unite**
+
+`unite()` is the inverse of separate.
+
+Can be used to rejoin data.
+
+
+```r
+table5 %>%
+  unite(new, century, year, sep = "")
+```
+
+```
+## # A tibble: 6 x 3
+##       country   new              rate
+## *       <chr> <chr>             <chr>
+## 1 Afghanistan  1999      745/19987071
+## 2 Afghanistan  2000     2666/20595360
+## 3      Brazil  1999   37737/172006362
+## 4      Brazil  2000   80488/174504898
+## 5       China  1999 212258/1272915272
+## 6       China  2000 213766/1280428583
+```
+
+### 12.5 Missing values
+
+**Explicitly** flagged with `NA`
+**Implicitly** not present in the data
+
+
+```r
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+
+# The way that a data set is represented can make implicit values explicit.
+
+stocks %>% 
+  spread(year, return)
+```
+
+```
+## # A tibble: 4 x 3
+##     qtr `2015` `2016`
+## * <dbl>  <dbl>  <dbl>
+## 1     1   1.88     NA
+## 2     2   0.59   0.92
+## 3     3   0.35   0.17
+## 4     4     NA   2.66
+```
+
+```r
+# Because they might not be important. You can set na.rm = TRUE in gather().
+
+stocks %>% 
+  spread(year, return) %>% 
+  gather(year, return, `2015`:`2016`, na.rm = TRUE)
+```
+
+```
+## # A tibble: 6 x 3
+##     qtr  year return
+## * <dbl> <chr>  <dbl>
+## 1     1  2015   1.88
+## 2     2  2015   0.59
+## 3     3  2015   0.35
+## 4     2  2016   0.92
+## 5     3  2016   0.17
+## 6     4  2016   2.66
+```
+
+```r
+# Another tool to make missing values explicit is complete()
+stocks %>%
+  complete(year, qtr)
+```
+
+```
+## # A tibble: 8 x 3
+##    year   qtr return
+##   <dbl> <dbl>  <dbl>
+## 1  2015     1   1.88
+## 2  2015     2   0.59
+## 3  2015     3   0.35
+## 4  2015     4     NA
+## 5  2016     1     NA
+## 6  2016     2   0.92
+## 7  2016     3   0.17
+## 8  2016     4   2.66
+```
+
+
+```
+
+
