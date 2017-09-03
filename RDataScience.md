@@ -3485,16 +3485,16 @@ tibble(
 ## # A tibble: 1,000 x 5
 ##                      a          b     c          d     e
 ##                 <dttm>     <date> <int>      <dbl> <chr>
-##  1 2017-09-04 04:13:46 2017-09-24     1 0.89127770     l
-##  2 2017-09-03 20:36:31 2017-09-08     2 0.94658562     k
-##  3 2017-09-03 17:52:42 2017-09-28     3 0.85563417     v
-##  4 2017-09-04 08:21:48 2017-09-04     4 0.72182279     t
-##  5 2017-09-03 21:23:24 2017-09-23     5 0.60327025     t
-##  6 2017-09-03 17:34:15 2017-09-24     6 0.08274355     f
-##  7 2017-09-03 17:55:49 2017-09-11     7 0.91840370     c
-##  8 2017-09-04 09:50:24 2017-09-14     8 0.19719921     y
-##  9 2017-09-04 12:53:39 2017-09-16     9 0.26916681     a
-## 10 2017-09-04 06:46:19 2017-09-12    10 0.70053942     a
+##  1 2017-09-04 01:13:35 2017-09-08     1 0.01017580     c
+##  2 2017-09-04 15:48:52 2017-09-05     2 0.27106636     d
+##  3 2017-09-04 17:58:15 2017-09-10     3 0.97903904     f
+##  4 2017-09-04 04:27:41 2017-09-07     4 0.28450458     u
+##  5 2017-09-04 07:35:56 2017-09-20     5 0.88150777     r
+##  6 2017-09-03 22:06:21 2017-09-15     6 0.75677754     k
+##  7 2017-09-04 00:07:19 2017-09-17     7 0.61153831     e
+##  8 2017-09-04 17:30:18 2017-09-07     8 0.11522333     t
+##  9 2017-09-03 20:41:31 2017-09-05     9 0.01758232     j
+## 10 2017-09-04 11:32:11 2017-09-16    10 0.22874729     y
 ## # ... with 990 more rows
 ```
 
@@ -3522,7 +3522,7 @@ df$x
 ```
 
 ```
-## [1] 0.03238639 0.01334500 0.57868442 0.98030351 0.80002169
+## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
 ```
 
 ```r
@@ -3530,7 +3530,7 @@ df[["x"]]
 ```
 
 ```
-## [1] 0.03238639 0.01334500 0.57868442 0.98030351 0.80002169
+## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
 ```
 
 ```r
@@ -3539,7 +3539,7 @@ df[[1]]
 ```
 
 ```
-## [1] 0.03238639 0.01334500 0.57868442 0.98030351 0.80002169
+## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
 ```
 
 Can be used in a pipe. Only need to use the special placeholder `.`:
@@ -3549,7 +3549,7 @@ df %>% .$x
 ```
 
 ```
-## [1] 0.03238639 0.01334500 0.57868442 0.98030351 0.80002169
+## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
 ```
 
 ```r
@@ -3557,7 +3557,7 @@ df %>% .[["x"]]
 ```
 
 ```
-## [1] 0.03238639 0.01334500 0.57868442 0.98030351 0.80002169
+## [1] 0.16270490 0.68532832 0.68444866 0.01307105 0.93001075
 ```
 
 Some older functions don't work with tibbles. Need to use `as.data.frame()`
@@ -3700,16 +3700,16 @@ ggplot(annoying, aes(`1`, `2`)) +
 ## # A tibble: 10 x 3
 ##      `1`       `2`      `3`
 ##    <int>     <dbl>    <dbl>
-##  1     1  2.655775 2.655775
-##  2     2  4.902608 2.451304
-##  3     3  5.031278 1.677093
-##  4     4 10.078599 2.519650
-##  5     5 11.501359 2.300272
-##  6     6 13.439278 2.239880
-##  7     7 15.721971 2.245996
-##  8     8 16.460872 2.057609
-##  9     9 19.249798 2.138866
-## 10    10 19.624944 1.962494
+##  1     1  2.789902 2.789902
+##  2     2  2.035615 1.017808
+##  3     3  7.023018 2.341006
+##  4     4  8.425647 2.106412
+##  5     5  9.529924 1.905985
+##  6     6 11.482911 1.913818
+##  7     7 11.805388 1.686484
+##  8     8 15.622929 1.952866
+##  9     9 18.637661 2.070851
+## 10    10 20.130508 2.013051
 ```
 
 ```r
@@ -3724,16 +3724,16 @@ rename(annoying,
 ## # A tibble: 10 x 3
 ##      one       two    three
 ##    <int>     <dbl>    <dbl>
-##  1     1  2.655775 2.655775
-##  2     2  4.902608 2.451304
-##  3     3  5.031278 1.677093
-##  4     4 10.078599 2.519650
-##  5     5 11.501359 2.300272
-##  6     6 13.439278 2.239880
-##  7     7 15.721971 2.245996
-##  8     8 16.460872 2.057609
-##  9     9 19.249798 2.138866
-## 10    10 19.624944 1.962494
+##  1     1  2.789902 2.789902
+##  2     2  2.035615 1.017808
+##  3     3  7.023018 2.341006
+##  4     4  8.425647 2.106412
+##  5     5  9.529924 1.905985
+##  6     6 11.482911 1.913818
+##  7     7 11.805388 1.686484
+##  8     8 15.622929 1.952866
+##  9     9 18.637661 2.070851
+## 10    10 20.130508 2.013051
 ```
 
 5. What does `tibble::enframe()` do? When might you use it?
@@ -3744,4 +3744,353 @@ rename(annoying,
 
 `getOption("tibble.max_extra_cols")`
 
+## 11 Data Import
 
+Csv files are one of the most common forms of data storage, but once you understand `read_csv()`, you can easily apply your knowledge on all the other functions of readr (`read_csv2()`, `read_tsv()`, `read_delim()`, `read_fwf()`, `read_log()`).
+
+
+```r
+# heights <- read_csv("data/heights.csv")
+read_csv("a,b,c
+         1,2,3
+         3,4,5")
+```
+
+```
+## # A tibble: 2 x 3
+##       a     b     c
+##   <int> <int> <int>
+## 1     1     2     3
+## 2     3     4     5
+```
+
+`read_csv()` uses the first line of the data for column names (very common). However, there's sometimes a few lines of metadata at the top of the file.
+
+1. Can skip this by using `skip = n` or `comment = "#"` to drop all lines that start with `#`.
+
+
+```r
+read_csv("The first line of metadata
+  The second line of metadata
+  x,y,z
+  1,2,3", skip = 2)
+```
+
+```
+## # A tibble: 1 x 3
+##       x     y     z
+##   <int> <int> <int>
+## 1     1     2     3
+```
+
+```r
+read_csv("# A comment I want to skip
+  x,y,z
+  1,2,3", comment = "#")
+```
+
+```
+## # A tibble: 1 x 3
+##       x     y     z
+##   <int> <int> <int>
+## 1     1     2     3
+```
+
+2. The data might not have column names. Use `col_names = FALSE`
+
+
+```r
+read_csv("1,2,3\n4,5,6", col_names = FALSE)
+```
+
+```
+## # A tibble: 2 x 3
+##      X1    X2    X3
+##   <int> <int> <int>
+## 1     1     2     3
+## 2     4     5     6
+```
+
+`"\n"` is a convenient shortcut for adding a new line.
+
+Also, can add column names with `col_names`. And `na` is used to specify the value (or values) that are used to represent missing values in the data.
+
+
+```r
+read_csv("a,b,c\n1,2,.", na = ".")
+```
+
+```
+## # A tibble: 1 x 3
+##       a     b     c
+##   <int> <int> <chr>
+## 1     1     2  <NA>
+```
+
+#### 11.2.2 Exercises
+
+1. What function would you use to read a file where fields were separated with "`|`"?
+
+`read_delim(file, delim = "|")`
+
+2. Apart from `file`, `skip`, and `comment`, what other arguments do `read_csv()` and `read_tsv()` have in commong?
+
+* `col_names` and `col_types`
+* `locale`
+* `na` and `quoted_na`
+* `trim_ws`
+* `n_max` how many rows to read
+* `guess_max` how many rows to use when guessing the column type
+* `progress`
+
+3. Most important arguments to `read_fwf()`?
+
+`col_positions` which tells the function where data columns begin and end.
+
+4. How can you read the following text into a data frame?
+
+`"x,y\n1, 'a,b'"`
+
+
+```r
+x <- "x,y\n1,'a,b'"
+read_delim(x, ",", quote = "'")
+```
+
+```
+## # A tibble: 1 x 2
+##       x     y
+##   <int> <chr>
+## 1     1   a,b
+```
+
+### 11.3 Parsing a vector
+
+`parse_*()` functions take a character vector and return a more specialised vector like a logical, integer, or date:
+
+
+```r
+str(parse_logical(c("TRUE", "FALSE", "NA")))
+```
+
+```
+##  logi [1:3] TRUE FALSE NA
+```
+
+```r
+str(parse_integer(c("1","2","3")))
+```
+
+```
+##  int [1:3] 1 2 3
+```
+
+```r
+str(parse_date(c("2010-01-01", "1979-10-14")))
+```
+
+```
+##  Date[1:2], format: "2010-01-01" "1979-10-14"
+```
+
+#### 11.3.1 Numbers
+
+
+```r
+parse_double("1.23")
+```
+
+```
+## [1] 1.23
+```
+
+```r
+parse_double("1,23", locale = locale(decimal_mark = ","))
+```
+
+```
+## [1] 1.23
+```
+
+
+```r
+# Used in America
+parse_number("$123,456,789")
+```
+
+```
+## [1] 123456789
+```
+
+```r
+# Used in many parts of Europe
+parse_number("123.456.789", locale = locale(grouping_mark = "."))
+```
+
+```
+## [1] 123456789
+```
+
+```r
+# Used in Switzerland
+parse_number("123'456'789", locale = locale(grouping_mark = "'"))
+```
+
+```
+## [1] 123456789
+```
+
+#### 11.3.4 Dates, date-times, and times
+
+* `parse_datetime()` expects an ISO8601 date-time.
+
+
+```r
+parse_datetime("2010-10-01T2010")
+```
+
+```
+## [1] "2010-10-01 20:10:00 UTC"
+```
+
+```r
+# If time is omitted, it will be set to midnight
+parse_datetime("20101010")
+```
+
+```
+## [1] "2010-10-10 UTC"
+```
+
+* `parse_date()` expects a four digit year, a `-` or `/`, the month, a `-` or `/`, the the day:
+
+
+```r
+parse_date("2010-10-01")
+```
+
+```
+## [1] "2010-10-01"
+```
+
+* `parse_time()` expects the hour, :, minutes, optionally : and seconds, and an optional am/pm specifier:
+
+
+```r
+library(hms)
+parse_time("01:10 am")
+```
+
+```
+## 01:10:00
+```
+
+```r
+parse_time("20:10:01")
+```
+
+```
+## 20:10:01
+```
+
+#### 11.3.5 Exercises
+
+1. What are the most important arguments to `locale()`?
+
+The locale controls:
+
+* date and time formats: `date_names`, `date_format`, and `time_format`
+* time_zone: `tz`
+* numbers: `decimal_mark`, `grouping_mark`
+* encoding: `encoding`
+
+2. What happens if `decimal_mark` and `grouping_mark` are set to the same character?
+
+If the `decimal_mark` is set to the comma `","`, then the `grouping_mark` must be set to the period `"."`
+
+5. What's the difference between `read_csv()` and `read_csv2()`?
+
+The delimeter since `read_csv2()` uses a semi-colon (`;`) instead of a comma (`,`).
+
+7. Generate the correct format string to parse each of the following dates and times:
+
+
+```r
+# First
+d1 <- "January 1, 2010"
+parse_date(d1, "%B %d, %Y")
+```
+
+```
+## [1] "2010-01-01"
+```
+
+```r
+# Second
+d2 <- "2015-Mar-07"
+parse_date(d2, "%Y-%b-%d")
+```
+
+```
+## [1] "2015-03-07"
+```
+
+```r
+# Third
+d3 <- "06-Jun-2017"
+parse_date(d3, "%d-%b-%Y")
+```
+
+```
+## [1] "2017-06-06"
+```
+
+```r
+# Fourth
+d4 <- c("August 19 (2015)", "July 1 (2015)")
+parse_date(d4, "%B %d %Y")
+```
+
+```
+## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)
+```
+
+```
+## Warning: 2 parsing failures.
+## row # A tibble: 2 x 4 col     row   col           expected           actual expected   <int> <int>              <chr>            <chr> actual 1     1    NA date like %B %d %Y August 19 (2015) row 2     2    NA date like %B %d %Y    July 1 (2015)
+```
+
+```
+## [1] NA NA
+```
+
+```r
+# Fifth
+d5 <- "12/30/14" # Dec 30, 2014
+parse_date(d5, "%m/%d/%y")
+```
+
+```
+## [1] "2014-12-30"
+```
+
+```r
+# Six
+t1 <- "1705"
+parse_time(t1, "%H%M")
+```
+
+```
+## 17:05:00
+```
+
+```r
+# Seven
+t2 <- "11:15:10.12 PM"
+parse_time(t2, "%I:%M:%OS %p")
+```
+
+```
+## 23:15:10.12
+```
