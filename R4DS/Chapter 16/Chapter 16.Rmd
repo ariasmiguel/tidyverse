@@ -1,0 +1,397 @@
+---
+title: "Chapter 16"
+author: "Miguel Arias"
+date: "9/5/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width=6, fig.height=4)
+```
+
+## Dates and times
+
+```{r start, include = FALSE}
+library(tidyverse)
+library(lubridate)
+library(nycflights13)
+```
+
+### 16.2 Creating date/times
+
+Three types of date/time data
+1. A **date**. Tibbles print this as `<date>`
+2. A **time** within a day. Tibbles print this as `<time>`
+3. A **date-time** is a date plus a time. Tibbles print this as `<dttm>`.
+
+To get current date or date-time:
+```{r date1}
+today()
+now()
+```
+
+#### 16.2.1 From strings
+
+```{r date2}
+ymd("2017-01-31")
+mdy("January 31st, 2017")
+dmy("31-Jan-2017")
+
+# ymd() and the ones above create dates. Can add an "_"
+# and one or more of "h", "m", and "s" to add time
+ymd_hms("2017-01-31 20:11:59")
+mdy_hm("01/31/2017 08:01")
+```
+
+#### 16.2.2 From individual components
+
+```{r date3}
+flights %>% 
+  select(year, month, day, hour, minute)
+```
+
+To create a date/time from this input, use `make_date()` or `make_datetime()`.
+
+```{r date4}
+flights %>% 
+  select(year, month, day, hour, minute) %>% 
+  mutate(departure = make_datetime(year, month, day, hour, minute))
+```
+
+Let's do the same for each time column in `flights`
+```{r date5}
+make_datetime_100 <- function(year, month, day, time) {
+  make_datetime(year, month, day, time %/% 100, time %% 100)
+}
+
+flights_dt <- flights %>% 
+  filter(!is.na(dep_time), !is.na(arr_time)) %>% 
+  mutate(
+    dep_time = make_datetime_100(year, month, day, dep_time),
+    arr_time = make_datetime_100(year, month, day, arr_time),
+    sched_dep_time = make_datetime_100(year, month, day, sched_dep_time),
+    sched_arr_time = make_datetime_100(year, month, day, sched_arr_time)
+  ) %>% 
+  select(origin, dest, ends_with("delay"), ends_with("time"))
+```
+
+Now we can visualize the distribution of departure time across the year:
+
+```{r date6}
+flights_dt %>% 
+  ggplot(aes(dep_time)) + 
+  geom_freqpoly(binwidth = 86400) # 86400 seconds = 1
+
+# Or within a single day:
+flights_dt %>% 
+  filter(dep_time < ymd(20130102)) %>% 
+  ggplot(aes(dep_time)) + 
+  geom_freqpoly(binwidth = 600) # 600 s = 10 minutes
+```
+
+Mqy want to switch between date and date-time:
+* `as_datetime()`
+* `as_date()`
+
+#### 16.2.4 Exercises
+
+1. What happens if you parse a string that conatins invalid dates?
+
+```{r ex1}
+ymd(c("2010-10-10", "bananas"))
+```
+
+It parses the valid dates and returns the invalid ones as `NA` and produces a warning message.
+
+2. What does the `tzone` argument to `today()` do? Why is it important?
+
+It is a character vector that specifies the time zone that should be used for the date. It's important since the value of `today()` can vary depending on the time-zone specified.
+
+3. Use the appropriate lubridate function to parse each of the following dates:
+
+```{r ex3}
+d1 <- "January 1, 2010"
+mdy(d1)
+
+d2 <- "2015-Mar-07"
+ymd(d2)
+
+d3 <- "06-Jun-2017"
+dmy(d3)
+
+d4 <- c("August 19 (2015)", "July 1 (2015)")
+mdy(d4)
+
+d5 <- "12/30/14" # Dec 30, 2014
+mdy(d5)
+```
+
+### 16.3 Date-time components
+
+Components:
+* `year()`
+* `month()`
+* `mday()`: day of the month
+* `yday()`: day of the year
+* `wday()`: day of the week
+* `hour()`
+* `minute()`
+* `second()`
+
+```{r datecomp1}
+datetime <- ymd_hms("2016-07-08 12:34:56")
+year(datetime)
+month(datetime)
+month(datetime, label = TRUE)
+mday(datetime)
+yday(datetime)
+wday(datetime)
+wday(datetime, label = TRUE)
+```
+
+Can use `wday()` too see what time during the week there are more departures.
+
+```{r datecomp2}
+flights_dt %>%
+  mutate(wday = wday(dep_time, label = TRUE)) %>%
+  ggplot(aes(wday)) + 
+  geom_bar()
+```
+
+By looking at flights avg dep delay by minute within the hour we can see at what time flights are more delayed:
+```{r datecomp3}
+flights_dt %>% 
+  mutate(minute = minute(dep_time)) %>% 
+  group_by(minute) %>% 
+  summarise(
+    avg_delay = mean(arr_delay, na.rm = TRUE),
+    n = n()) %>% 
+  ggplot(aes(minute, avg_delay)) +
+    geom_line()
+```
+
+#### 16.3.2 Rounding
+
+* `floor_date()`: rounds down
+* `round_date()`: rounds to a set value
+* `ceiling_date()`: rounds up
+
+#### 16.3.4 Exercises
+
+1. How does the distribution of flight times within a day change over the course of the year?
+
+```{r dateex1}
+# By month
+flights_dt %>%
+  mutate(time = hour(dep_time) * 100 + minute(dep_time),
+         mon = as.factor(month
+                         (dep_time))) %>%
+  ggplot(aes(x = time, group = mon, color = mon)) +
+  geom_freqpoly(binwidth = 100)
+
+# Normalize the data (Feb has 28 days)
+flights_dt %>%
+  mutate(time = hour(dep_time) * 100 + minute(dep_time),
+         mon = as.factor(month
+                         (dep_time))) %>%
+  ggplot(aes(x = time, y = ..density.., group = mon, color = mon)) +
+  geom_freqpoly(binwidth = 100)
+```
+
+2. Compare `dep_time`, `sched_dep_time` and `dep_delay`. Are they consistent? Explain your findings.
+
+If they are consistent, `dep_time = sched_dep_time + dep_delay`.
+
+```{r dateex2}
+flights_dt %>%
+  mutate(dep_time_ = sched_dep_time + dep_delay * 60) %>%
+  filter(dep_time_ != dep_time) %>%
+  select(dep_time_, dep_time, sched_dep_time, dep_delay)
+```
+
+There are discrepancies. These are flights in whihc the actual departure time is on the next day relative to the scheduled departure time.
+
+3. Compare `air_time` with the duration between the departure and arrival. Explain your findings
+
+```{r dateex3}
+flights_dt %>%
+  mutate(flight_duration = as.numeric(arr_time - dep_time),
+         air_time_mins = air_time,
+         diff = flight_duration - air_time_mins) %>%
+  select(origin, dest, flight_duration, air_time_mins, diff)
+```
+
+The difference can be attributed to different time zones and to the time it takes for passengers to leave the flight.
+
+4. How does the average delay time change over the course of a day? Should you use `dep_time` or `sched_dep_time`? Why?
+
+Use `sched_dep_time` as it is the relevant metric for someone scheduling a flight. As well, `dep_time` will always bias to later in the day since delays push flights farther up the schedule.
+
+```{r dateex4}
+flights_dt %>%
+  mutate(sched_dep_hour = hour(sched_dep_time)) %>%
+  group_by(sched_dep_hour) %>%
+  summarise(dep_delay = mean(dep_delay)) %>%
+  ggplot(aes(y = dep_delay, x = sched_dep_hour)) +
+  geom_point() +
+  geom_smooth()
+```
+
+5. On what day of the week should you leave if you want to minimize the change of a delay?
+
+```{r dateex5}
+flights_dt %>%
+  mutate(dow = wday(sched_dep_time)) %>%
+  group_by(dow) %>%
+  summarise(dep_delay = mean(dep_delay),
+            arr_delay = mean(arr_delay, na.rm = TRUE))
+```
+
+Sunday has the lowest avg dep delay and lowest avg delay.
+
+7. The early departures of flights in minutes 20-30 and 50-60 is caused by scheduled flights that leave early. 
+
+```{r dateex7}
+flights_dt %>%
+  mutate(early = dep_delay < 0,
+         minute = minute(sched_dep_time)) %>%
+  group_by(minute) %>%
+  summarise(early = mean(early)) %>%
+  ggplot(aes(x = minute, y = early)) +
+  geom_point()
+
+# But if grouped in 10 min intervals
+flights_dt %>%
+  mutate(early = dep_delay < 0,
+         minute = minute(sched_dep_time) %% 10) %>%
+  group_by(minute) %>%
+  summarise(early = mean(early)) %>%
+  ggplot(aes(x = minute, y = early)) +
+  geom_point()
+```
+
+### 16.4 Time spans
+
+* **Durations** represent an exact number of seconds
+```{r durations}
+h_age <- today() - ymd(19791014)
+as.duration(h_age)
+dseconds(15)
+dminutes(10)
+dhours(c(12, 24))
+ddays(0:5)
+dweeks(3)
+dyears(1)
+
+# Can add and multiply them
+2 * dyears(1)
+dyears(1) + dweeks(12) + dhours(15)
+
+```
+
+* **Periods** represent human units like weeks and months
+```{r periods}
+one_pm <- ymd_hms("2016-03-12 13:00:00", tz = "America/New_York")
+one_pm + days(1)
+seconds(15)
+minutes(10)
+hours(c(12, 24))
+days(7)
+months(1:6)
+weeks(3)
+years(1)
+
+# Can add and multiply periods
+10 * (months(6) + days(1))
+days(50) + hours(25) + minutes(2)
+
+# Can use periods to fix anomaliy of overnight flights
+flights_dt <- flights_dt %>% 
+  mutate(
+    overnight = arr_time < dep_time,
+    arr_time = arr_time + days(overnight * 1),
+    sched_arr_time = sched_arr_time + days(overnight * 1)
+  )
+```
+
+* **Intervals** represent a starting and ending point
+```{r intervals}
+next_year <- today() + years(1)
+(today() %--% next_year) / ddays(1)
+
+# Need to use integer division to find how many periods fit into an interval
+(today() %--% next_year) %/% days(1)
+```
+
+#### 16.4.5 Exercises
+
+1. Why is there no `dmonths()`?
+
+No direct unambigous value of months in seconds:
+* 31 days
+* 30 days
+* 28 or 29 days
+
+2. Explain `days(overnight * 1)` to someone who has just started learning R. How does it work?
+
+`overnight` is equal to TRUE (1) or FALSE (0). 
+
+3. Create a vector of dates giving the first day of every month in 2015. Create a vector of dates giving the first day of every month in the current year.
+
+A vector of the first day of the month for every month in 2015:
+```{r durationex1}
+ymd("2015-01-01") + months(0:11)
+```
+
+To get the first day of the month of this year, first need to figure out what year it is, and get Jan 1st. Can do it by taking `today()` and truncating it to the year using `floor_date`:
+
+```{r durationex2}
+floor_date(today(), unit = "year") + months(0:11)
+```
+
+4. Write a function that given your birthday (as a date), returns how old you are in years.
+
+```{r durationex3}
+age <- function(bday) {
+  (bday %--% today()) %/% years(1)
+}
+age(ymd("1995-08-15"))
+```
+
+5. Why can't `(today() %--% (today() + years(1)))/months(1)` work?
+
+```{r durationex4}
+(today() %--% (today() + years(1))) %/% months(1)
+(today() %--% (today() + years(1))) / months(1)
+```
+
+It appears to work.
+
+### 16.5 Time zones
+
+```{r timezone}
+Sys.timezone()
+```
+
+In R, the time zone is an attribute of the date-time that only controls printing.
+
+```{r timezone2}
+(x1 <- ymd_hms("2015-06-01 12:00:00", tz = "America/New_York"))
+(x2 <- ymd_hms("2015-06-01 18:00:00", tz = "Europe/Copenhagen"))
+(x3 <- ymd_hms("2015-06-02 04:00:00", tz = "Pacific/Auckland"))
+x4 <- c(x1, x2, x3)
+```
+
+Can change the time zone in two ways:
+
+1. Keep the instant in time the same, and change how it's displayed. Use this when the instant is correct, but you want a more natural display.
+```{r tz1}
+x4a <- with_tz(x4, tzone = "Australia/Lord_Howe")
+```
+
+2. Change the underlying instant in time. Use this when you have an instant that has ben labelled with the incorrect time zone, and you need to fix it.
+```{r tz2}
+x4b <- force_tz(x4, tzone = "Australia/Lord_Howe")
+```
