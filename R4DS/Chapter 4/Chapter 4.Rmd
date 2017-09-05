@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Workflow 
 
-```{r start, echo = FALSE}
+```{r start, include = FALSE}
 library(tidyverse)
 library(ggplot2)
 ```

@@ -7,23 +7,6 @@ Miguel Arias
 # Exploratory Data Analysis
 
 
-```
-## Loading tidyverse: ggplot2
-## Loading tidyverse: tibble
-## Loading tidyverse: tidyr
-## Loading tidyverse: readr
-## Loading tidyverse: purrr
-## Loading tidyverse: dplyr
-```
-
-```
-## Conflicts with tidy packages ----------------------------------------------
-```
-
-```
-## filter(): dplyr, stats
-## lag():    dplyr, stats
-```
 
 ### 7.3.4 Exercises
 
