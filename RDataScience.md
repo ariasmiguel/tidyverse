@@ -3483,18 +3483,18 @@ tibble(
 
 ```
 ## # A tibble: 1,000 x 5
-##                      a          b     c         d     e
-##                 <dttm>     <date> <int>     <dbl> <chr>
-##  1 2017-09-03 23:49:51 2017-09-30     1 0.1843551     g
-##  2 2017-09-04 03:41:02 2017-09-09     2 0.1276734     x
-##  3 2017-09-04 01:26:43 2017-09-10     3 0.5658232     j
-##  4 2017-09-04 02:33:11 2017-09-14     4 0.1145124     z
-##  5 2017-09-04 08:45:38 2017-09-21     5 0.1644923     x
-##  6 2017-09-04 10:14:03 2017-09-27     6 0.4028472     c
-##  7 2017-09-03 21:32:19 2017-09-25     7 0.6253489     w
-##  8 2017-09-04 02:18:11 2017-09-05     8 0.2216783     n
-##  9 2017-09-04 10:40:25 2017-09-23     9 0.4402216     b
-## 10 2017-09-04 02:33:51 2017-09-30    10 0.4046498     n
+##                      a          b     c          d     e
+##                 <dttm>     <date> <int>      <dbl> <chr>
+##  1 2017-09-05 13:39:01 2017-09-28     1 0.19003590     g
+##  2 2017-09-05 11:14:17 2017-09-07     2 0.79277342     b
+##  3 2017-09-06 03:57:52 2017-09-18     3 0.19116453     r
+##  4 2017-09-05 11:55:47 2017-09-23     4 0.05897836     k
+##  5 2017-09-06 08:20:52 2017-09-22     5 0.51302217     a
+##  6 2017-09-06 01:04:42 2017-09-14     6 0.94842953     k
+##  7 2017-09-06 07:30:00 2017-09-26     7 0.27960437     n
+##  8 2017-09-05 13:52:29 2017-09-21     8 0.14492254     e
+##  9 2017-09-05 16:54:42 2017-09-27     9 0.39865903     h
+## 10 2017-09-05 20:38:08 2017-09-29    10 0.33540824     p
 ## # ... with 990 more rows
 ```
 
@@ -3522,7 +3522,7 @@ df$x
 ```
 
 ```
-## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
+## [1] 0.07298142 0.88501343 0.97644898 0.69848501 0.66820241
 ```
 
 ```r
@@ -3530,7 +3530,7 @@ df[["x"]]
 ```
 
 ```
-## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
+## [1] 0.07298142 0.88501343 0.97644898 0.69848501 0.66820241
 ```
 
 ```r
@@ -3539,7 +3539,7 @@ df[[1]]
 ```
 
 ```
-## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
+## [1] 0.07298142 0.88501343 0.97644898 0.69848501 0.66820241
 ```
 
 Can be used in a pipe. Only need to use the special placeholder `.`:
@@ -3549,7 +3549,7 @@ df %>% .$x
 ```
 
 ```
-## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
+## [1] 0.07298142 0.88501343 0.97644898 0.69848501 0.66820241
 ```
 
 ```r
@@ -3557,7 +3557,7 @@ df %>% .[["x"]]
 ```
 
 ```
-## [1] 0.83447553 0.25874825 0.17663591 0.89613294 0.01126411
+## [1] 0.07298142 0.88501343 0.97644898 0.69848501 0.66820241
 ```
 
 Some older functions don't work with tibbles. Need to use `as.data.frame()`
@@ -3700,16 +3700,16 @@ ggplot(annoying, aes(`1`, `2`)) +
 ## # A tibble: 10 x 3
 ##      `1`       `2`      `3`
 ##    <int>     <dbl>    <dbl>
-##  1     1  3.942549 3.942549
-##  2     2  2.884609 1.442305
-##  3     3  5.380182 1.793394
-##  4     4  5.826451 1.456613
-##  5     5  9.266687 1.853337
-##  6     6  8.256023 1.376004
-##  7     7 13.900340 1.985763
-##  8     8 16.186496 2.023312
-##  9     9 17.494445 1.943827
-## 10    10 20.348629 2.034863
+##  1     1  2.129237 2.129237
+##  2     2  3.467452 1.733726
+##  3     3  6.622581 2.207527
+##  4     4  7.877226 1.969307
+##  5     5  9.294432 1.858886
+##  6     6 12.396902 2.066150
+##  7     7 12.766914 1.823845
+##  8     8 15.701002 1.962625
+##  9     9 19.048980 2.116553
+## 10    10 19.235621 1.923562
 ```
 
 ```r
@@ -3724,16 +3724,16 @@ rename(annoying,
 ## # A tibble: 10 x 3
 ##      one       two    three
 ##    <int>     <dbl>    <dbl>
-##  1     1  3.942549 3.942549
-##  2     2  2.884609 1.442305
-##  3     3  5.380182 1.793394
-##  4     4  5.826451 1.456613
-##  5     5  9.266687 1.853337
-##  6     6  8.256023 1.376004
-##  7     7 13.900340 1.985763
-##  8     8 16.186496 2.023312
-##  9     9 17.494445 1.943827
-## 10    10 20.348629 2.034863
+##  1     1  2.129237 2.129237
+##  2     2  3.467452 1.733726
+##  3     3  6.622581 2.207527
+##  4     4  7.877226 1.969307
+##  5     5  9.294432 1.858886
+##  6     6 12.396902 2.066150
+##  7     7 12.766914 1.823845
+##  8     8 15.701002 1.962625
+##  9     9 19.048980 2.116553
+## 10    10 19.235621 1.923562
 ```
 
 5. What does `tibble::enframe()` do? When might you use it?
@@ -4048,21 +4048,11 @@ parse_date(d3, "%d-%b-%Y")
 ```r
 # Fourth
 d4 <- c("August 19 (2015)", "July 1 (2015)")
-parse_date(d4, "%B %d %Y")
+parse_date(d4, "%B %d (%Y)")
 ```
 
 ```
-## Warning in rbind(names(probs), probs_f): number of columns of result is not
-## a multiple of vector length (arg 1)
-```
-
-```
-## Warning: 2 parsing failures.
-## row # A tibble: 2 x 4 col     row   col           expected           actual expected   <int> <int>              <chr>            <chr> actual 1     1    NA date like %B %d %Y August 19 (2015) row 2     2    NA date like %B %d %Y    July 1 (2015)
-```
-
-```
-## [1] NA NA
+## [1] "2015-08-19" "2015-07-01"
 ```
 
 ```r
@@ -4097,15 +4087,121 @@ parse_time(t2, "%I:%M:%OS %p")
 
 ### 11.5 Writing to a file
 
-Can use `write_csv()` and `write_tsv()`.
+Can use `write_csv()` and `write_tsv()`. Although a little unreliable for catching interim results. Alternatives:
+
+1. `write_rds()` and `read_rds()` are uniform wrappers around the base functions `readRDS()` and `saveRDS()`. These store data in R's custom binary format called RDS:
+
+2. The feather package implements a fast binary file format that can be shared across programming languages:
+
+`library(feather)`
+`write_feather()`
+`read_feather("challenge.feather")`
+
+### 11.6 Other types of data
+
+1. **haven** reads SPSS, Stata, and SAS files
+2. **readxl** reads excel files (both `.xls` and `xlsx`).
+3. **DBI**, along with a database specific backend (e.g. **RMySQL**, **RSQLite**, **RPostgreSQL** etc) allows you to run SQL queries against a database and return a data frame.
+
+For hierarchical data: use **jsonlite** (by Jeroen Ooms) for json, and **xml2** for XML.
 
 ## 12 Tidy data
 
-There are three interrelated rules which make a dataset tidy:
+Examples of data organised in four different ways.
+
+
+```r
+table1
+```
+
+```
+## # A tibble: 6 x 4
+##       country  year  cases population
+##         <chr> <int>  <int>      <int>
+## 1 Afghanistan  1999    745   19987071
+## 2 Afghanistan  2000   2666   20595360
+## 3      Brazil  1999  37737  172006362
+## 4      Brazil  2000  80488  174504898
+## 5       China  1999 212258 1272915272
+## 6       China  2000 213766 1280428583
+```
+
+```r
+table2
+```
+
+```
+## # A tibble: 12 x 4
+##        country  year       type      count
+##          <chr> <int>      <chr>      <int>
+##  1 Afghanistan  1999      cases        745
+##  2 Afghanistan  1999 population   19987071
+##  3 Afghanistan  2000      cases       2666
+##  4 Afghanistan  2000 population   20595360
+##  5      Brazil  1999      cases      37737
+##  6      Brazil  1999 population  172006362
+##  7      Brazil  2000      cases      80488
+##  8      Brazil  2000 population  174504898
+##  9       China  1999      cases     212258
+## 10       China  1999 population 1272915272
+## 11       China  2000      cases     213766
+## 12       China  2000 population 1280428583
+```
+
+```r
+table3
+```
+
+```
+## # A tibble: 6 x 3
+##       country  year              rate
+## *       <chr> <int>             <chr>
+## 1 Afghanistan  1999      745/19987071
+## 2 Afghanistan  2000     2666/20595360
+## 3      Brazil  1999   37737/172006362
+## 4      Brazil  2000   80488/174504898
+## 5       China  1999 212258/1272915272
+## 6       China  2000 213766/1280428583
+```
+
+```r
+table4a
+```
+
+```
+## # A tibble: 3 x 3
+##       country `1999` `2000`
+## *       <chr>  <int>  <int>
+## 1 Afghanistan    745   2666
+## 2      Brazil  37737  80488
+## 3       China 212258 213766
+```
+
+```r
+table4b
+```
+
+```
+## # A tibble: 3 x 3
+##       country     `1999`     `2000`
+## *       <chr>      <int>      <int>
+## 1 Afghanistan   19987071   20595360
+## 2      Brazil  172006362  174504898
+## 3       China 1272915272 1280428583
+```
+
+All representations of the same underlying data, but they are not equally easy to use. There are three interrelated rules which make a dataset tidy:
 
 1. Each variable must have its own column
 2. Each observation must have its own row
 3. Each value must have its own cell
+
+These rules lead to an even simpler set of practical instructions:
+
+1. Put each dataset in a tibble.
+2. Put each variable in a column.
+
+In this example, only `table1` is tidy.
 
 Tidy data facilitates transforming it.
 
@@ -4153,6 +4249,8 @@ ggplot(table1, aes(year, cases)) +
 ![](RDataScience_files/figure-html/tidydata1-1.png)<!-- -->
 
 ### 12.3 Spreading and gathering
+
+**Gather()**
 
 
 ```r
@@ -4233,9 +4331,39 @@ left_join(tidy4a, tidy4b)
 ## 6       China  2000 213766 1280428583
 ```
 
-#### 12.3.2 Spreading
+Now the data is tidy!
 
-Spreading is the opposite of gathering
+**Spread()**
+
+Spreading is the opposite of gathering. For example, in `table2`: an observation is a country in a year, but each observation is spread across two rows.
+
+
+```r
+table2
+```
+
+```
+## # A tibble: 12 x 4
+##        country  year       type      count
+##          <chr> <int>      <chr>      <int>
+##  1 Afghanistan  1999      cases        745
+##  2 Afghanistan  1999 population   19987071
+##  3 Afghanistan  2000      cases       2666
+##  4 Afghanistan  2000 population   20595360
+##  5      Brazil  1999      cases      37737
+##  6      Brazil  1999 population  172006362
+##  7      Brazil  2000      cases      80488
+##  8      Brazil  2000 population  174504898
+##  9       China  1999      cases     212258
+## 10       China  1999 population 1272915272
+## 11       China  2000      cases     213766
+## 12       China  2000 population 1280428583
+```
+
+To tidy this up, we first analyse the represenation in similar way to `gather()`. This time, however, we only need two parameters:
+
+* The column that contains variables names, the `key` column. Here, it's `type`.
+* The column that contains values forms multiple variables, the `value` column. Here it's `count`.
 
 
 ```r
@@ -4253,6 +4381,8 @@ spread(table2, key = type, value = count)
 ## 5       China  1999 212258 1272915272
 ## 6       China  2000 213766 1280428583
 ```
+
+The functions `spread` and `gather` are not perfectly symmetrical because column type information is not transferred between them. The `convert` argument tries to convert character vectors to the appropriate type. Need to set `convert = TRUE`.
 
 ### 12.4 Separating and uniting
 
@@ -4377,7 +4507,236 @@ stocks %>%
 ## 8  2016     4   2.66
 ```
 
+### 12.6 Case Study
+
+Dataset:
+
+
+```r
+who
+```
 
 ```
+## # A tibble: 7,240 x 60
+##        country  iso2  iso3  year new_sp_m014 new_sp_m1524 new_sp_m2534
+##          <chr> <chr> <chr> <int>       <int>        <int>        <int>
+##  1 Afghanistan    AF   AFG  1980          NA           NA           NA
+##  2 Afghanistan    AF   AFG  1981          NA           NA           NA
+##  3 Afghanistan    AF   AFG  1982          NA           NA           NA
+##  4 Afghanistan    AF   AFG  1983          NA           NA           NA
+##  5 Afghanistan    AF   AFG  1984          NA           NA           NA
+##  6 Afghanistan    AF   AFG  1985          NA           NA           NA
+##  7 Afghanistan    AF   AFG  1986          NA           NA           NA
+##  8 Afghanistan    AF   AFG  1987          NA           NA           NA
+##  9 Afghanistan    AF   AFG  1988          NA           NA           NA
+## 10 Afghanistan    AF   AFG  1989          NA           NA           NA
+## # ... with 7,230 more rows, and 53 more variables: new_sp_m3544 <int>,
+## #   new_sp_m4554 <int>, new_sp_m5564 <int>, new_sp_m65 <int>,
+## #   new_sp_f014 <int>, new_sp_f1524 <int>, new_sp_f2534 <int>,
+## #   new_sp_f3544 <int>, new_sp_f4554 <int>, new_sp_f5564 <int>,
+## #   new_sp_f65 <int>, new_sn_m014 <int>, new_sn_m1524 <int>,
+## #   new_sn_m2534 <int>, new_sn_m3544 <int>, new_sn_m4554 <int>,
+## #   new_sn_m5564 <int>, new_sn_m65 <int>, new_sn_f014 <int>,
+## #   new_sn_f1524 <int>, new_sn_f2534 <int>, new_sn_f3544 <int>,
+## #   new_sn_f4554 <int>, new_sn_f5564 <int>, new_sn_f65 <int>,
+## #   new_ep_m014 <int>, new_ep_m1524 <int>, new_ep_m2534 <int>,
+## #   new_ep_m3544 <int>, new_ep_m4554 <int>, new_ep_m5564 <int>,
+## #   new_ep_m65 <int>, new_ep_f014 <int>, new_ep_f1524 <int>,
+## #   new_ep_f2534 <int>, new_ep_f3544 <int>, new_ep_f4554 <int>,
+## #   new_ep_f5564 <int>, new_ep_f65 <int>, newrel_m014 <int>,
+## #   newrel_m1524 <int>, newrel_m2534 <int>, newrel_m3544 <int>,
+## #   newrel_m4554 <int>, newrel_m5564 <int>, newrel_m65 <int>,
+## #   newrel_f014 <int>, newrel_f1524 <int>, newrel_f2534 <int>,
+## #   newrel_f3544 <int>, newrel_f4554 <int>, newrel_f5564 <int>,
+## #   newrel_f65 <int>
+```
+
+The best place to start is almost always to gather the columns that are not variables. 
+
+* It looks like `country`, `iso2`, and `iso3` are three variables that redundantly specify the country.
+* `year` is also clearly also a variable.
+* We don't know what all the other columns are yet, but given the structure in the variable names (e.g. `new_sp_m014`, `new_ep_m014`, `new_ep_f014`) these are likely to be values, not variables.
+
+Need to gather all the columns from `new_sp_m014` to `newrel_f65`. Give them the generic name `"key"` and use the variable `cases`. There are a lot of missing values, so for now we'll use `na.rm` so we can focus on the values that are present.
+
+
+```r
+who1 <- who %>%
+  gather(new_sp_m014:newrel_f65, key = "key", value = "cases", na.rm = TRUE)
+who1
+```
+
+```
+## # A tibble: 76,046 x 6
+##        country  iso2  iso3  year         key cases
+##  *       <chr> <chr> <chr> <int>       <chr> <int>
+##  1 Afghanistan    AF   AFG  1997 new_sp_m014     0
+##  2 Afghanistan    AF   AFG  1998 new_sp_m014    30
+##  3 Afghanistan    AF   AFG  1999 new_sp_m014     8
+##  4 Afghanistan    AF   AFG  2000 new_sp_m014    52
+##  5 Afghanistan    AF   AFG  2001 new_sp_m014   129
+##  6 Afghanistan    AF   AFG  2002 new_sp_m014    90
+##  7 Afghanistan    AF   AFG  2003 new_sp_m014   127
+##  8 Afghanistan    AF   AFG  2004 new_sp_m014   139
+##  9 Afghanistan    AF   AFG  2005 new_sp_m014   151
+## 10 Afghanistan    AF   AFG  2006 new_sp_m014   193
+## # ... with 76,036 more rows
+```
+
+1. The first three letters of each column denote whether the column contains new or old cases of TB.
+2. The next two letters describe the type of TB:
+* `rel` stands for cases of relapse
+* `ep` stands for cases of extrapulmonary TB
+* `sn` stands for cases of pulmonary TB that could not be diagnosed by a pulmonary smear (negative)
+* `sp` stands for cases of pulmonary TB that could not be diagnosed by a pulmonary smear (positive)
+3. The sixth letter gives the sex of TB patiens.
+4. The remaining numbers gives the age group.
+
+Need to make a minor fix to the format of the column names as the names are inconsistent with `new_rel` we have `newrel`.
+
+
+```r
+who2 <- who1 %>%
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel"))
+who2
+```
+
+```
+## # A tibble: 76,046 x 6
+##        country  iso2  iso3  year         key cases
+##          <chr> <chr> <chr> <int>       <chr> <int>
+##  1 Afghanistan    AF   AFG  1997 new_sp_m014     0
+##  2 Afghanistan    AF   AFG  1998 new_sp_m014    30
+##  3 Afghanistan    AF   AFG  1999 new_sp_m014     8
+##  4 Afghanistan    AF   AFG  2000 new_sp_m014    52
+##  5 Afghanistan    AF   AFG  2001 new_sp_m014   129
+##  6 Afghanistan    AF   AFG  2002 new_sp_m014    90
+##  7 Afghanistan    AF   AFG  2003 new_sp_m014   127
+##  8 Afghanistan    AF   AFG  2004 new_sp_m014   139
+##  9 Afghanistan    AF   AFG  2005 new_sp_m014   151
+## 10 Afghanistan    AF   AFG  2006 new_sp_m014   193
+## # ... with 76,036 more rows
+```
+
+Now we can separate the values in each code with two passes of `separate()`.
+
+
+```r
+who3 <- who2 %>%
+  separate(key, c("new", "type", "sexage"), sep = "_")
+who3
+```
+
+```
+## # A tibble: 76,046 x 8
+##        country  iso2  iso3  year   new  type sexage cases
+##  *       <chr> <chr> <chr> <int> <chr> <chr>  <chr> <int>
+##  1 Afghanistan    AF   AFG  1997   new    sp   m014     0
+##  2 Afghanistan    AF   AFG  1998   new    sp   m014    30
+##  3 Afghanistan    AF   AFG  1999   new    sp   m014     8
+##  4 Afghanistan    AF   AFG  2000   new    sp   m014    52
+##  5 Afghanistan    AF   AFG  2001   new    sp   m014   129
+##  6 Afghanistan    AF   AFG  2002   new    sp   m014    90
+##  7 Afghanistan    AF   AFG  2003   new    sp   m014   127
+##  8 Afghanistan    AF   AFG  2004   new    sp   m014   139
+##  9 Afghanistan    AF   AFG  2005   new    sp   m014   151
+## 10 Afghanistan    AF   AFG  2006   new    sp   m014   193
+## # ... with 76,036 more rows
+```
+
+```r
+# Might as well drop the new column because it's constant.
+
+who3 %>%
+  count(new)
+```
+
+```
+## # A tibble: 1 x 2
+##     new     n
+##   <chr> <int>
+## 1   new 76046
+```
+
+```r
+who4 <- who3 %>%
+  select(-new, -iso2, -iso3)
+```
+
+Next, separate `sexage` into `sex` and `age`.
+
+
+```r
+who5 <- who4 %>%
+  separate(sexage, c("sex", "age"), sep = 1)
+who5
+```
+
+```
+## # A tibble: 76,046 x 6
+##        country  year  type   sex   age cases
+##  *       <chr> <int> <chr> <chr> <chr> <int>
+##  1 Afghanistan  1997    sp     m   014     0
+##  2 Afghanistan  1998    sp     m   014    30
+##  3 Afghanistan  1999    sp     m   014     8
+##  4 Afghanistan  2000    sp     m   014    52
+##  5 Afghanistan  2001    sp     m   014   129
+##  6 Afghanistan  2002    sp     m   014    90
+##  7 Afghanistan  2003    sp     m   014   127
+##  8 Afghanistan  2004    sp     m   014   139
+##  9 Afghanistan  2005    sp     m   014   151
+## 10 Afghanistan  2006    sp     m   014   193
+## # ... with 76,036 more rows
+```
+
+Here's the code altogether:
+
+
+```r
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+
+```
+## # A tibble: 76,046 x 6
+##        country  year   var   sex   age value
+##  *       <chr> <int> <chr> <chr> <chr> <int>
+##  1 Afghanistan  1997    sp     m   014     0
+##  2 Afghanistan  1998    sp     m   014    30
+##  3 Afghanistan  1999    sp     m   014     8
+##  4 Afghanistan  2000    sp     m   014    52
+##  5 Afghanistan  2001    sp     m   014   129
+##  6 Afghanistan  2002    sp     m   014    90
+##  7 Afghanistan  2003    sp     m   014   127
+##  8 Afghanistan  2004    sp     m   014   139
+##  9 Afghanistan  2005    sp     m   014   151
+## 10 Afghanistan  2006    sp     m   014   193
+## # ... with 76,036 more rows
+```
+
+How to confirm redundancy of `iso2` and `iso3`?
+
+
+```r
+select(who3, country, iso2, iso3) %>%
+  distinct() %>%
+  group_by(country) %>%
+  filter(n() > 1)
+```
+
+```
+## # A tibble: 0 x 3
+## # Groups:   country [0]
+## # ... with 3 variables: country <chr>, iso2 <chr>, iso3 <chr>
+```
+
+## Relational data
+
+
+
 
 

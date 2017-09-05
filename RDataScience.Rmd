@@ -1788,7 +1788,7 @@ parse_date(d3, "%d-%b-%Y")
 
 # Fourth
 d4 <- c("August 19 (2015)", "July 1 (2015)")
-parse_date(d4, "%B %d %Y")
+parse_date(d4, "%B %d (%Y)")
 
 # Fifth
 d5 <- "12/30/14" # Dec 30, 2014
@@ -1805,15 +1805,48 @@ parse_time(t2, "%I:%M:%OS %p")
 
 ### 11.5 Writing to a file
 
-Can use `write_csv()` and `write_tsv()`.
+Can use `write_csv()` and `write_tsv()`. Although a little unreliable for catching interim results. Alternatives:
+
+1. `write_rds()` and `read_rds()` are uniform wrappers around the base functions `readRDS()` and `saveRDS()`. These store data in R's custom binary format called RDS:
+
+2. The feather package implements a fast binary file format that can be shared across programming languages:
+
+`library(feather)`
+`write_feather()`
+`read_feather("challenge.feather")`
+
+### 11.6 Other types of data
+
+1. **haven** reads SPSS, Stata, and SAS files
+2. **readxl** reads excel files (both `.xls` and `xlsx`).
+3. **DBI**, along with a database specific backend (e.g. **RMySQL**, **RSQLite**, **RPostgreSQL** etc) allows you to run SQL queries against a database and return a data frame.
+
+For hierarchical data: use **jsonlite** (by Jeroen Ooms) for json, and **xml2** for XML.
 
 ## 12 Tidy data
 
-There are three interrelated rules which make a dataset tidy:
+Examples of data organised in four different ways.
+
+```{r tidydataorg}
+table1
+table2
+table3
+table4a
+table4b
+```
+
+All representations of the same underlying data, but they are not equally easy to use. There are three interrelated rules which make a dataset tidy:
 
 1. Each variable must have its own column
 2. Each observation must have its own row
 3. Each value must have its own cell
+
+These rules lead to an even simpler set of practical instructions:
+
+1. Put each dataset in a tibble.
+2. Put each variable in a column.
+
+In this example, only `table1` is tidy.
 
 Tidy data facilitates transforming it.
 
@@ -1834,6 +1867,8 @@ ggplot(table1, aes(year, cases)) +
 ```
 
 ### 12.3 Spreading and gathering
+
+**Gather()**
 
 ```{r gather1}
 table4a
@@ -1861,13 +1896,26 @@ tidy4b <- table4b %>%
 left_join(tidy4a, tidy4b)
 ```
 
-#### 12.3.2 Spreading
+Now the data is tidy!
 
-Spreading is the opposite of gathering
+**Spread()**
+
+Spreading is the opposite of gathering. For example, in `table2`: an observation is a country in a year, but each observation is spread across two rows.
+
+```{r spreaddata}
+table2
+```
+
+To tidy this up, we first analyse the represenation in similar way to `gather()`. This time, however, we only need two parameters:
+
+* The column that contains variables names, the `key` column. Here, it's `type`.
+* The column that contains values forms multiple variables, the `value` column. Here it's `count`.
 
 ```{r spread1}
 spread(table2, key = type, value = count)
 ```
+
+The functions `spread` and `gather` are not perfectly symmetrical because column type information is not transferred between them. The `convert` argument tries to convert character vectors to the appropriate type. Need to set `convert = TRUE`.
 
 ### 12.4 Separating and uniting
 
@@ -1925,7 +1973,92 @@ stocks %>%
   complete(year, qtr)
 ```
 
+### 12.6 Case Study
 
+Dataset:
+
+```{r casestudy1}
+who
 ```
+
+The best place to start is almost always to gather the columns that are not variables. 
+
+* It looks like `country`, `iso2`, and `iso3` are three variables that redundantly specify the country.
+* `year` is also clearly also a variable.
+* We don't know what all the other columns are yet, but given the structure in the variable names (e.g. `new_sp_m014`, `new_ep_m014`, `new_ep_f014`) these are likely to be values, not variables.
+
+Need to gather all the columns from `new_sp_m014` to `newrel_f65`. Give them the generic name `"key"` and use the variable `cases`. There are a lot of missing values, so for now we'll use `na.rm` so we can focus on the values that are present.
+
+```{r casestudy2}
+who1 <- who %>%
+  gather(new_sp_m014:newrel_f65, key = "key", value = "cases", na.rm = TRUE)
+who1
+```
+
+1. The first three letters of each column denote whether the column contains new or old cases of TB.
+2. The next two letters describe the type of TB:
+* `rel` stands for cases of relapse
+* `ep` stands for cases of extrapulmonary TB
+* `sn` stands for cases of pulmonary TB that could not be diagnosed by a pulmonary smear (negative)
+* `sp` stands for cases of pulmonary TB that could not be diagnosed by a pulmonary smear (positive)
+3. The sixth letter gives the sex of TB patiens.
+4. The remaining numbers gives the age group.
+
+Need to make a minor fix to the format of the column names as the names are inconsistent with `new_rel` we have `newrel`.
+
+```{r casestudy3}
+who2 <- who1 %>%
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel"))
+who2
+```
+
+Now we can separate the values in each code with two passes of `separate()`.
+
+```{r casestudy4}
+who3 <- who2 %>%
+  separate(key, c("new", "type", "sexage"), sep = "_")
+who3
+
+# Might as well drop the new column because it's constant.
+
+who3 %>%
+  count(new)
+
+who4 <- who3 %>%
+  select(-new, -iso2, -iso3)
+```
+
+Next, separate `sexage` into `sex` and `age`.
+
+```{r casestudy5}
+who5 <- who4 %>%
+  separate(sexage, c("sex", "age"), sep = 1)
+who5
+```
+
+Here's the code altogether:
+
+```{r casestudy6}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+
+How to confirm redundancy of `iso2` and `iso3`?
+
+```{r casestudy7}
+select(who3, country, iso2, iso3) %>%
+  distinct() %>%
+  group_by(country) %>%
+  filter(n() > 1)
+```
+
+## Relational data
+
+
+
 
 
