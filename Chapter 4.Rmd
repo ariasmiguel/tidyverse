@@ -1,0 +1,69 @@
+---
+title: "Chapter 4"
+author: "Miguel Arias"
+date: "9/5/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Workflow 
+
+```{r start, echo = FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+## 4.1 Coding basics
+
+You can create new objects with `<-`:
+```{r coding1}
+x <- 3 * 4
+```
+
+All R statements where you create objects, **assignemnet** statements, have the same form:
+
+`object_name <- value`
+
+## 4.2 What's in a name?
+
+Recommend using **snake_case** where you separete lowercase words with `_`.
+
+This is how object/function names should look: `i_use_snake_case`
+
+## 4.3 Calling functions
+
+R has a large collection of built-in functions that are called like this:
+`function_name(arg1 = val1, arg2 = val2, ...)`
+
+To create and call out an object:
+```{r coding2}
+(y <- seq(1,10, length.out = 5))
+```
+
+## 4.4 Practice
+
+1. Why does this code not work?
+
+```{r codprac1}
+my_variable <- 10
+#my_varıable
+```
+
+It does not work because `my_variable` is misspelled the second time.
+
+2. Tweak each of the following R commands so that they run correctly:
+
+```{r codprac2}
+library(tidyverse)
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+filter(mpg, cyl == 8)
+filter(diamonds, carat > 3)
+```

@@ -1,0 +1,241 @@
+---
+title: "Chapter 13"
+author: "Miguel Arias"
+date: "9/5/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Relational data
+
+```{r start, echo = FALSE}
+library(tidyverse)
+library(nycflights13)
+```
+
+Multiple tables of data are called **relational data** because it is the relations, not just the individual datasets, that are important.
+
+Relational data verbs:
+
+* **Mutating joins**, add new variables to one data from from matching observations in another
+* **Filtering joins**, filter observations from one data frame based on whether or not they match an observation in the other table.
+* **Set operations**, treat observations as if they were set elements.
+
+## 13.2 nycflights13
+
+The nycflights13 package contains four tibbles that are related to the `flights` table.
+
+* `airlines` lets you loop up the full carrier name from its abbreviated code.
+```{r nycfligths1}
+airlines
+```
+
+* `airports` gives information about each airport, identified by the `faa` airport code:
+```{r nycflights2}
+airports
+```
+
+* `planes` gives information about each plane, identified by its `tailnum`
+```{r nycflights3}
+planes
+```
+
+* `weather` gives the weather at each NYC airport for each hour
+```{r nycflights4}
+weather
+```
+
+## 13.3 Keys
+
+Two types of keys:
+1. A **primary key** uniquely identifies an observation in its own table. For example, `planes$tailnum` is a primary key because it uniquely identifies each plane in the `planes` table.
+2. A **foreign key** uniquely identifies an observation in another table. For example, the `flights$tailnum` is a foreign key because it appears in the `flights` table where it matches each flight to a unique plane.
+
+Good practice to verify primary keys:
+```{r keys1}
+planes %>%
+  count(tailnum) %>%
+  filter(n > 1)
+
+weather %>%
+  count(year, month, day, hour, origin) %>%
+  filter(n > 1)
+```
+
+### 13.3.1 Exercises
+
+1. Add a surrogate key to flights
+
+Add the column `flight_id` as a surrogate key.
+
+```{r keysex}
+flights %>%
+  arrange(year, month, day, sched_dep_time, carrier, flight) %>%
+  mutate(flight_id = row_number()) %>%
+  glimpse()
+```
+
+## 13.4 Mutating Joins
+
+Like `mutate()`, the join functions add variables to the right, so if you have a lot of variables already, the new variables won't get printed.
+
+```{r mutatejoins1}
+flights2 <- flights %>%
+  select(year:day, hour, origin, dest, tailnum, carrier)
+flights2
+
+# If you want to add the full airline name to flights2
+# Can combine the airlines and flights2 data frames with left_join()
+flights2 %>%
+  select(-origin, -dest) %>%
+  left_join(airlines, by = "carrier")
+```
+
+**Types**
+
+```{r jointypes}
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     4, "y3"
+)
+```
+
+* `inner_join()`: matches pairs of observations whenever their keys are equal.
+```{r innerjoin1}
+x %>%
+  inner_join(y, by = "key")
+```
+
+* `left_join()` keeps all observations of `x`
+* `right_join()` keeps all observations of `y`
+* `full_join()` keeps all observations in `x` and `y`.
+
+### 13.4.5 Defining the key columns
+
+* The default, `by = NULL`, uses all variables that appear in both tables, the so called **natural** join. For example, the flights and weather tables match on their common variables: `year`, `month`, `day`, `hour`, and `origin`.
+```{r keycols1}
+flights2 %>%
+  left_join(weather)
+```
+
+* A character vector, `by = "x"`.
+```{r keycols2}
+flights2 %>%
+  left_join(planes, by = "tailnum")
+```
+
+* A named character vector: `by = c("a" = "b")`. Matches variable `a` in table `x` to variable `b` in table `y`.
+
+```{r keycols3}
+flights2 %>%
+  left_join(airports, c("dest" = "faa"))
+```
+
+### 13.4.6 Exercises
+
+1. Compute the average delay by destination, then join on the airports data frame so you can show the spatial distribution of delays.
+
+```{r keysex1}
+library(purrr)
+airports %>%
+  semi_join(flights, c("faa" = "dest")) %>%
+  ggplot(aes(lon, lat)) +
+  borders("state") +
+  geom_point() + 
+  coord_quickmap()
+```
+
+```{r keysex1.1}
+avg_dest_delays <-
+  flights %>%
+  group_by(dest) %>%
+  # arrival delay NA's are cancelled flights
+  summarise(delay = mean(arr_delay, na.rm = TRUE)) %>%
+  inner_join(airports, by = c(dest = "faa"))
+
+avg_dest_delays %>%
+  ggplot(aes(lon, lat, colour = delay)) +
+    borders("state") +
+    geom_point() + 
+    coord_quickmap()
+```
+
+2. Add the location of the origin and destination (i.e. the lat and lon) to flights
+
+```{r keysex2}
+flights %>%
+  left_join(airports, by = c(dest = "faa")) %>%
+  left_join(airports, by = c(origin = "faa")) %>%
+  head()
+```
+
+3. Is there a relationship between the age of a plane and its delays?
+
+```{r keysex3}
+plane_ages <-
+  planes %>%
+  mutate(age = 2013 - year) %>%
+  select(tailnum, age)
+
+flights %>%
+  inner_join(plane_ages, by = "tailnum") %>%
+  group_by(age) %>%
+  filter(!is.na(dep_delay)) %>%
+  summarise(delay = mean(dep_delay)) %>%
+  ggplot(aes(x = age, y = delay)) +
+  geom_point()+
+  geom_line()
+```
+
+## 13.5 Filtering joins
+
+* `semi_join`: keeps all obs in `x` with a match in `y`. Useful for matching filtered summary tables back to the original rows.
+* `anti_join`: drops all obs in `x` with a match in `y`. Useful for diagnosing mismatches.
+
+For example, when connecting `flights` and `planes`, you might be interested to know that there are many `flights` that don't have a match in `planes`:
+```{r filterjoins1}
+flights %>%
+  anti_join(planes, by = "tailnum") %>%
+  count(tailnum, sort = TRUE)
+```
+
+### 13.5.1 Exercises
+
+2. Filter flights to only show flights with planes that have flown at least 100 flights
+
+```{r filterjoinex1}
+planes_gt100 <- 
+  filter(flights) %>%
+  group_by(tailnum) %>%
+  count() %>%
+  filter(n > 100)
+
+flights %>%
+  semi_join(planes_gt100, by = "tailnum")
+```
+
+4. What does` anti_join(flights, airports, by = c("dest" = "faa"))` tell you? What does `anti_join(airports, flights, by = c("faa" = "dest"))` tell you?
+
+`anti_join(flights, airports, by = c("dest" = "faa"))` are flights that go to an airport that is not in FAA list of destinations, likely foreign airports.
+
+`anti_join(airports, flights, by = c("faa" = "dest"))` are US airports that don’t have a flight in the data, meaning that there were no flights to that aiport from New York in 2013.
+  
+## 13.7 Set operations
+
+The final type of two-table verb are the set operations
+* `intersect(x,y)`: return only observations in both `x` and `y`
+* `union(x, y)`: return unique observations in `x` and `y`
+* `setdiff(x, y)`: return observations in `x`, but not in `y`.

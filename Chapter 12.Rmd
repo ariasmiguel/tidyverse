@@ -1,0 +1,249 @@
+---
+title: "Chapter 12"
+author: "Miguel Arias"
+date: "9/5/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tidy data
+
+```{r start, echo = FALSE}
+library(tidyverse)
+```
+
+Examples of data organised in four different ways.
+
+```{r tidydataorg}
+table1
+table2
+table3
+table4a
+table4b
+```
+
+All representations of the same underlying data, but they are not equally easy to use. There are three interrelated rules which make a dataset tidy:
+
+1. Each variable must have its own column
+2. Each observation must have its own row
+3. Each value must have its own cell
+
+These rules lead to an even simpler set of practical instructions:
+
+1. Put each dataset in a tibble.
+2. Put each variable in a column.
+
+In this example, only `table1` is tidy.
+
+Tidy data facilitates transforming it.
+
+```{r tidydata1}
+# Compute rate per 10,000
+table1 %>%
+  mutate(rate = cases / population * 10000)
+
+# Compute cases per year
+table1 %>%
+  count(year, wt = cases)
+
+# Visualise changes over time
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+```
+
+## 12.3 Spreading and gathering
+
+**Gather()**
+
+```{r gather1}
+table4a
+```
+
+Need to `gather()` the columns into a new pair of variables.
+
+```{r gather2}
+table4a %>%
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+
+```{r gather3}
+table4b %>%
+  gather(`1999`, `2000`, key = "year", value = "population")
+```
+
+To combine the tidied versions of `table4a` and `table4b` into a single tibble, we need to use `dplyr::left_join()`.
+
+```{r gather4}
+tidy4a <- table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+tidy4b <- table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+left_join(tidy4a, tidy4b)
+```
+
+Now the data is tidy!
+
+**Spread()**
+
+Spreading is the opposite of gathering. For example, in `table2`: an observation is a country in a year, but each observation is spread across two rows.
+
+```{r spreaddata}
+table2
+```
+
+To tidy this up, we first analyse the represenation in similar way to `gather()`. This time, however, we only need two parameters:
+
+* The column that contains variables names, the `key` column. Here, it's `type`.
+* The column that contains values forms multiple variables, the `value` column. Here it's `count`.
+
+```{r spread1}
+spread(table2, key = type, value = count)
+```
+
+The functions `spread` and `gather` are not perfectly symmetrical because column type information is not transferred between them. The `convert` argument tries to convert character vectors to the appropriate type. Need to set `convert = TRUE`.
+
+## 12.4 Separating and uniting
+
+**Separate**
+
+`separate()` pulls apart one column into multiple columns.
+
+```{r separate1}
+table3 %>%
+  separate(rate, into = c("cases", "population"))
+```
+
+Can determine what makes the separationg with 
+
+`sep = "/"`, or whatever the separator is.
+
+By using `convert = TRUE`, `separate()` converts the data into better types.
+
+**Unite**
+
+`unite()` is the inverse of separate.
+
+Can be used to rejoin data.
+
+```{r unite1}
+table5 %>%
+  unite(new, century, year, sep = "")
+```
+
+## 12.5 Missing values
+
+**Explicitly** flagged with `NA`
+**Implicitly** not present in the data
+
+```{r tidymissing}
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+
+# The way that a data set is represented can make implicit values explicit.
+
+stocks %>% 
+  spread(year, return)
+
+# Because they might not be important. You can set na.rm = TRUE in gather().
+
+stocks %>% 
+  spread(year, return) %>% 
+  gather(year, return, `2015`:`2016`, na.rm = TRUE)
+
+# Another tool to make missing values explicit is complete()
+stocks %>%
+  complete(year, qtr)
+```
+
+## 12.6 Case Study
+
+Dataset:
+
+```{r casestudy1}
+who
+```
+
+The best place to start is almost always to gather the columns that are not variables. 
+
+* It looks like `country`, `iso2`, and `iso3` are three variables that redundantly specify the country.
+* `year` is also clearly also a variable.
+* We don't know what all the other columns are yet, but given the structure in the variable names (e.g. `new_sp_m014`, `new_ep_m014`, `new_ep_f014`) these are likely to be values, not variables.
+
+Need to gather all the columns from `new_sp_m014` to `newrel_f65`. Give them the generic name `"key"` and use the variable `cases`. There are a lot of missing values, so for now we'll use `na.rm` so we can focus on the values that are present.
+
+```{r casestudy2}
+who1 <- who %>%
+  gather(new_sp_m014:newrel_f65, key = "key", value = "cases", na.rm = TRUE)
+who1
+```
+
+1. The first three letters of each column denote whether the column contains new or old cases of TB.
+2. The next two letters describe the type of TB:
+* `rel` stands for cases of relapse
+* `ep` stands for cases of extrapulmonary TB
+* `sn` stands for cases of pulmonary TB that could not be diagnosed by a pulmonary smear (negative)
+* `sp` stands for cases of pulmonary TB that could not be diagnosed by a pulmonary smear (positive)
+3. The sixth letter gives the sex of TB patiens.
+4. The remaining numbers gives the age group.
+
+Need to make a minor fix to the format of the column names as the names are inconsistent with `new_rel` we have `newrel`.
+
+```{r casestudy3}
+who2 <- who1 %>%
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel"))
+who2
+```
+
+Now we can separate the values in each code with two passes of `separate()`.
+
+```{r casestudy4}
+who3 <- who2 %>%
+  separate(key, c("new", "type", "sexage"), sep = "_")
+who3
+
+# Might as well drop the new column because it's constant.
+
+who3 %>%
+  count(new)
+
+who4 <- who3 %>%
+  select(-new, -iso2, -iso3)
+```
+
+Next, separate `sexage` into `sex` and `age`.
+
+```{r casestudy5}
+who5 <- who4 %>%
+  separate(sexage, c("sex", "age"), sep = 1)
+who5
+```
+
+Here's the code altogether:
+
+```{r casestudy6}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+
+How to confirm redundancy of `iso2` and `iso3`?
+
+```{r casestudy7}
+select(who3, country, iso2, iso3) %>%
+  distinct() %>%
+  group_by(country) %>%
+  filter(n() > 1)
+```
