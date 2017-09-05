@@ -2284,3 +2284,284 @@ The final type of two-table verb are the set operations
 * `intersect(x,y)`: return only observations in both `x` and `y`
 * `union(x, y)`: return unique observations in `x` and `y`
 * `setdiff(x, y)`: return observations in `x`, but not in `y`.
+
+## 14 Strings
+
+```{r strings1}
+library(tidyverse)
+library(stringr)
+```
+
+Most common special characters:
+* `"\n"`: newline
+* `"\t"`: tab
+* Complete list: `?'"'`
+
+Stringr commands:
+* `str_length()`: tells you the number of characters in a string:
+```{r strlength}
+str_length(c("a", "R for data science", NA))
+```
+
+* `str_c()`: combines strings
+```{r strc}
+str_c("x", "y")
+str_c("x", "y", "z")
+```
+
+Use the `sep` argument to control how they're separated:
+```{r strc2}
+str_c("x", "y", sep = ", ")
+```
+
+Use `str_replace_na()` to show missing values as `"NA"`:
+```{r strc3}
+x <- c("abc", NA)
+str_c("|-", x, "-|")
+str_c("|-", str_replace_na(x), "-|")
+```
+
+* `str_sub`: takes `start` and `end` arguments which give the (inclusive) position of the substring:
+```{r strsub}
+x <- c("Apple", "Banana", "Pear")
+str_sub(x, 1, 3)
+str_sub(x, -3, -1)
+```
+
+Can be used to modify strings:
+```{r strsub2}
+str_sub(x, 1, 1) <- str_to_lower(str_sub(x, 1, 1))
+x
+```
+
+* `str_wrap()`: wraps text so that it fits withi a certain width. Useful for wrapping long strings of text to be typeset.
+
+* `str_trim()`: trims the whitespace of a string:
+```{r strtrim}
+str_trim(" abc ")
+str_trim(" abc ", side = "left")
+str_trim(" abc ", side = "right")
+```
+
+* `str_pad()`: opposite of `str_trim()`:
+```{r strpad}
+str_pad("abc", 5, side = "both")
+str_pad("abc", 5, side = "left")
+str_pad("abc", 5, side = "right")
+```
+
+* `str_view()`: takes a character vector and a regular expression, and show you how they match.
+```{r strview1}
+x <- c("apple", "banana", "pear")
+str_view(x, "an")
+
+# "." matches any character (except a newline)
+str_view(x, ".a.")
+
+# To create a regular expression, we need \\
+dot <- "\\."
+
+# But the expression itself only contains one:
+writeLines(dot)
+
+# This tells R to look for an explicit
+str_view(c("abc", "a.c", "bef"), "a\\.c")
+
+# ^ to match beg of string, $ to match end of string
+str_view(x, "^a")
+str_view(x, "a$")
+str_view(x, "^apple$")
+```
+
+### 14.1 String Basic Exercises
+
+3. Use `str_length()` and `str_sub()` to extract the middle character from a string. What will you do if the string has an even number of characters?
+
+The following function extracts teh middle character. If the string has an even number of character the choice is arbitrary.
+
+```{r strbasicex1}
+x <- c("a", "abc", "abcd", "abcde", "abcdef")
+L <- str_length(x)
+m <- ceiling(L / 2)
+str_sub(x, m, m)
+```
+
+6. Write a function that turns (e.g.) a vector c("a", "b", "c") into the string a, b, and c. Think carefully about what it should do if given a vector of length 0, 1, or 2.
+```{r strbasicex2}
+str_commasep <- function(x, sep = ", ", last = ", and ") {
+  if (length(x) > 1) {
+    str_c(str_c(x[-length(x)], collapse = sep),
+          x[length(x)],
+          sep = last)
+  } else {
+    x
+  }
+}
+str_commasep("")
+str_commasep("a")
+str_commasep(c("a", "b"))
+str_commasep(c("a", "b", "c"))
+```
+
+#### 14.3.3 Characters and classes
+
+* `\d` matches any digit (need to type `\\d`)
+* `\s` matches any whitespace (need to type `\\s`)
+* `[abc]` matches a, b, or c
+* `[^abc]` matches anything but a, b, or c
+
+##### 14.3.3.1 Exercises
+
+1. Create a regular expressions to find all words that:
+
+* Start with a vowel.
+* Only contain consonants
+* End with `ed`, but not with `eed`
+* End with `ing` or `ise`
+
+```{r charex1}
+str_view(stringr::words, "^[aeiou]")
+str_view(stringr::words, "^[^aeiou]+$", match = TRUE)
+str_view(stringr::words, "^ed$|[^e]ed$", match = TRUE)
+str_view(stringr::words, "i(ng|se)$", match = TRUE)
+```
+
+2. Empirically verify the rule "i before e except after c"
+
+```{r charex2}
+str_view(stringr::words, "(cei|[^c]ie)", match = TRUE)
+str_view(stringr::words, "(cie|[^c]ei)", match = TRUE)
+
+# Using str_detect()
+sum(str_detect(stringr::words, "(cei|[^c]ie)"))
+sum(str_detect(stringr::words, "(cie|[^c]ei)"))
+```
+
+5. Create a regular expression that will match telephone numbers as commonly written in your country
+
+```{r charex3}
+x <- c("123-456-7890", "1235-2351")
+str_view(x, "\\d\\d\\d-\\d\\d\\d-\\d\\d\\d\\d")
+
+# Using stuff from the next chapter
+str_view(x, "\\d{3}-\\d{3}-\\d{4}")
+```
+
+### 14.3.4 Repetition
+
+Controlling how many times a pattern matches:
+* `?`: 0 or 1
+* `+`: 1 or more
+* `*`: 0 or more
+
+```{r repetition1}
+x <- "1888 is the longest year in Roman numerals: MDCCCLXXXVIII"
+str_view(x, "CC?")
+str_view(x, "CC+")
+str_view(x, 'C[LX]+')
+```
+
+Can specify the number of matches:
+* `{n}`: exactly n
+* `{n,}`: n or more
+* `{,m}`: at most m
+* `{n,m}`: between n and m
+
+### 14.3.5 Grouping and backreferences
+
+Parentheses define "groups" that you can refer with _backreferences_, like `\1`, `\2` etc. For example, the following regular expression finds all fruits that have a repeated pair of letters.
+```{r strviewfruits}
+str_view(fruit, "(..)\\1", match = TRUE)
+```
+
+#### 14.3.5.1 Exercises
+
+1. Describe in words, what these expressions will match:
+
+* `(.)\1\1`: the same character appearing three times in a row. E.g "aaa"
+* `"(.)(.)\\2\\1"`: A pair of characters followed by the same pair of characters in reversed order. E.g. "abba"
+* `(..)\1`: Any two characters repeated. E.g. "a1a1"
+* `"(.).\\1.\\1"`: A character followed by any character, the original character, any other character, the original chracter again. E.g. "abaca", "b8b.b"
+* `"(.)(.)(.).*\\3\\2\\1"`: There character followed by zero or more characters of any kind followed by the same three characters but in reverse order. E.g. “abcsgasgddsadgsdgcba” or “abccba” or “abc1cba”.
+
+2. Construct regular expresions to match:
+
+```{r strviewex2}
+# Start and end with the same character
+str_view(words, "^(.).*\\1$", match = TRUE)
+
+# Contain a repeated pair of letters (e.g. "church") contains "ch" repeated twice
+
+# Any two characters repeated
+str_view(words, "(..).*\\1", match = TRUE)
+
+# More stringent, letters only, but also allowing for differences in capitalization
+str_view(str_to_lower(words), "([a-z][a-z]).*\\1", match = TRUE)
+```
+
+3. Conatins one letter repeated in at least three places (e.g. "eleven" contains three "e"s)
+```{r strviewex3}
+str_view(words, "(.).*\\1.*\\1", match = TRUE)
+```
+
+### 14.4 Tools
+
+To determine if a character vector matches a pattern, use `str_detect()`. It returns a logical vector the same length as the input:
+```{r strdetect1}
+x <- c("apple", "banana", "pear")
+str_detect(x, "e")
+```
+
+Two ways to find all words that don't contain any vowels:
+```{r strdetect2}
+no_vowels_1 <- !str_detect(words, "[aeiou]")
+no_vowels_2 <- str_detect(words, "^[^aeiou]+$")
+identical(no_vowels_1, no_vowels_2)
+```
+
+* A common use of `str_detect()` is to select the elemens that match a pattern. You can do this with logical subsetting, or the convenient `str_subset()` wrapper:
+
+```{r strsubset}
+words[str_detect(words, "x$")]
+str_subset(words, "x$")
+```
+
+* `str_count()` tells you how many matches are in a string:
+```{r strcount1}
+x <- c("apple", "banana", "pear")
+str_count(x, "a")
+mean(str_count(words, "[aeiou]"))
+
+```
+
+#### 14.4.2 Exercises
+
+1. All words that start or end with `x`.
+```{r strdetectex1}
+starts_with_x <- str_detect(words, "^x")
+ends_with_x <- str_detect(words, "x$")
+words[starts_with_x | ends_with_x]
+```
+
+2. All words that start with a vowel and end with a consonant.
+```{r strdetectex2}
+starts_with_vowel <- str_detect(words, "^[aeiou]")
+ends_with_cons <- str_detect(words, "[^aeiou]$")
+words[starts_with_vowel | ends_with_cons] %>% head()
+```
+
+3. Any words that contain at least one of each different vowel?
+```{r strdetectex3}
+words[str_detect(words, "a") &
+        str_detect(words, "e") &
+        str_detect(words, "i") &
+        str_detect(words, "o") &
+        str_detect(words, "u")]
+```
+
+4. What word has the highest number of vowels? What word has the highest proportion of vowels? (Hint: what is the denominator?)
+```{r strdetectex4}
+prop_vowels <- str_count(words, "[aeiou]") / str_length(words)
+words[which(prop_vowels == max(prop_vowels))]
+```
+
