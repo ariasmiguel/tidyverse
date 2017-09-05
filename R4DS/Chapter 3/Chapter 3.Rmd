@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE, cache = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width=6, fig.height=4)
 ```
 
 # Data Visualisation
@@ -17,7 +17,7 @@ R has several systems for making graphs, but `ggplot2` is one of the most elegan
 
 In order to use `ggplot2`, we first need to load the `tidyverse` package.
 
-```{r load1, results="hide"}
+```{r load1, include = FALSE}
 library(tidyverse)
 ```
 

@@ -11,27 +11,6 @@ R has several systems for making graphs, but `ggplot2` is one of the most elegan
 In order to use `ggplot2`, we first need to load the `tidyverse` package.
 
 
-```r
-library(tidyverse)
-```
-
-```
-## Loading tidyverse: ggplot2
-## Loading tidyverse: tibble
-## Loading tidyverse: tidyr
-## Loading tidyverse: readr
-## Loading tidyverse: purrr
-## Loading tidyverse: dplyr
-```
-
-```
-## Conflicts with tidy packages ----------------------------------------------
-```
-
-```
-## filter(): dplyr, stats
-## lag():    dplyr, stats
-```
 
 1. Do cars with big engines use more fuel than cars with small engines? Use the `mpg` **data frame** found in ggplot2.
 
