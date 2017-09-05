@@ -8,12 +8,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width=6, fig.height=4)
 ```
 
 # Tidy data
 
-```{r start, echo = FALSE}
+```{r start, include = FALSE}
 library(tidyverse)
 ```
 

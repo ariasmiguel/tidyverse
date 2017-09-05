@@ -7,23 +7,6 @@ Miguel Arias
 # Data Import
 
 
-```
-## Loading tidyverse: ggplot2
-## Loading tidyverse: tibble
-## Loading tidyverse: tidyr
-## Loading tidyverse: readr
-## Loading tidyverse: purrr
-## Loading tidyverse: dplyr
-```
-
-```
-## Conflicts with tidy packages ----------------------------------------------
-```
-
-```
-## filter(): dplyr, stats
-## lag():    dplyr, stats
-```
 
 Csv files are one of the most common forms of data storage, but once you understand `read_csv()`, you can easily apply your knowledge on all the other functions of readr (`read_csv2()`, `read_tsv()`, `read_delim()`, `read_fwf()`, `read_log()`).
 

@@ -7,23 +7,6 @@ Miguel Arias
 # Relational data
 
 
-```
-## Loading tidyverse: ggplot2
-## Loading tidyverse: tibble
-## Loading tidyverse: tidyr
-## Loading tidyverse: readr
-## Loading tidyverse: purrr
-## Loading tidyverse: dplyr
-```
-
-```
-## Conflicts with tidy packages ----------------------------------------------
-```
-
-```
-## filter(): dplyr, stats
-## lag():    dplyr, stats
-```
 
 Multiple tables of data are called **relational data** because it is the relations, not just the individual datasets, that are important.
 
