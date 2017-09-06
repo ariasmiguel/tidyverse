@@ -35,8 +35,8 @@ To write a function you need to first analyze the code.
 ```
 
 ```
-##  [1] 0.62083344 0.94327775 0.80495844 0.63632181 0.01952731 0.00000000
-##  [7] 0.69198472 0.25870826 0.16931732 1.00000000
+##  [1] 1.0000000 0.6753981 0.2571463 0.4827391 0.6108663 0.7518868 0.0000000
+##  [8] 0.3164585 0.4250835 0.7047674
 ```
 
 There are three key steps to creating a new function:
@@ -169,6 +169,10 @@ The `switch()` function allows you to evaluate selected code based on position o
 
 #### 19.4.4 Exercises
 
+1. What's the difference between `if` and `ifelse()`? 
+
+The keyword `if` tests a single condition, while `ifelse` tests each element.
+
 2. Write a greeting function that says "good morning", "good afternoon", or "good evening", depending on the time of day. (Hint: use a time argument that defaults to `lubridate::now()`. It will make it easier to test your function.)
 
 
@@ -204,7 +208,7 @@ greet()
 ```
 
 ```
-## [1] "good evening"
+## [1] "good morning"
 ```
 
 3. Implement a `fizzbuzz` function. It takes a single number as input. If the number is divisible by three, it returns "fizz". If it's divisible by five it returns "buzz". If it's divisible by three and five, it returns "fizzbuzz". Otherwise, it returns the number. Make sure you first write working code before you create the function.
@@ -333,7 +337,7 @@ mean_ci(x)
 ```
 
 ```
-## [1] 0.4805355 0.5901685
+## [1] 0.4394764 0.5522688
 ```
 
 ```r
@@ -341,7 +345,7 @@ mean_ci(x, conf = 0.99)
 ```
 
 ```
-## [1] 0.4633109 0.6073931
+## [1] 0.4217554 0.5699898
 ```
 
 #### 19.5.1 Choosing names
@@ -352,6 +356,8 @@ mean_ci(x, conf = 0.99)
 * `i`, `j`: numeric indices (typically rows and columns).
 * `n`: length, or number of rows
 * `p`: number of columns
+
+#### 19.5.2 Checking values
 
 Important to have preconditions, and throw and error (with `stop()`), if they are not true. Also, its good to use the built-in `stopifnot()`: it checks that each argument is `TRUE`, and produces a generic error message if not.
 
@@ -369,3 +375,88 @@ wt_mean <- function(x, w, na.rm = FALSE) {
   sum(w * x) / sum(w)
 }
 ```
+
+#### 19.5.3 Dot-dot-dot (...)
+
+The special argument `...` (pronounced dot-dot-dot) captures any number of arguments that aren't otherwise matched. 
+
+It's useful because you can then send those `...` on to another function. For example:
+
+
+```r
+commas <- function(...) stringr::str_c(..., collapse = ", ")
+commas(letters[1:10])
+```
+
+```
+## [1] "a, b, c, d, e, f, g, h, i, j"
+```
+
+```r
+rule <- function(..., pad = "-") {
+  title <- paste0(...)
+  width <- getOption("width") - nchar(title) - 5
+  cat(title, " ", stringr::str_dup(pad, width), "\n", sep = "")
+}
+rule("Important output")
+```
+
+```
+## Important output ------------------------------------------------------
+```
+
+However, this makes it easy for typos to go unnoticed. If you just want to capture the values of the `...`, use `list(...)`.
+
+#### 19.5.5 Exercises
+
+1. What does `commas(letters, collapse = "-")` do? Why?
+It throws an error, because the argument `collapse` is passed to `str_c` as part of `...`, so it tries to run `str_c(letters, collapse = "-", collapse = ", ")`.
+
+2. It'd be nice if you could supply multiple characters to the `pad` argument, e.g. `rule("Title", `pad = "-+")`. Why doesn't this currently work? How could you fix it?
+
+It does not work because it duplicates pad by the width minus the length of the string. Can adjust this in the code:
+
+
+```r
+rule <- function(..., pad = "-") {
+  title <- paste0(...)
+  width <- getOption("width") - nchar(title) - 5
+  padchar <- nchar(pad)
+  cat(title, " ",
+      stringr::str_dup(pad, width %/% padchar),
+      # if not multiple, fill in the remaining characters
+      stringr::str_sub(pad, 1, width %% padchar),
+      "\n", sep = "")
+}
+
+rule("Important output")
+```
+
+```
+## Important output ------------------------------------------------------
+```
+
+```r
+rule("Important output", pad = "-+")
+```
+
+```
+## Important output -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+```r
+rule("Important output", pad = "-+-")
+```
+
+```
+## Important output -+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-
+```
+
+3. What does the `trim` argument to `mean()` do? When might you use it?
+
+It trims a fraction of observations from each end of the vector (meaning the range) before calculating the mean. This is useful for calculatin a measure of central tendancy that is robust to outliers.
+
+4. The default value for the `method` argument to `cor()` is `c("pearson", "kendall", "spearman")`. What does that mean? What value is used by default?
+
+It means that the `method` argument can take one of those three values. The first value, `"pearson"`, is used by default.
+

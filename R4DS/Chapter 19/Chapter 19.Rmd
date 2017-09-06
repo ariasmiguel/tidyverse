@@ -163,6 +163,10 @@ The `switch()` function allows you to evaluate selected code based on position o
 
 #### 19.4.4 Exercises
 
+1. What's the difference between `if` and `ifelse()`? 
+
+The keyword `if` tests a single condition, while `ifelse` tests each element.
+
 2. Write a greeting function that says "good morning", "good afternoon", or "good evening", depending on the time of day. (Hint: use a time argument that defaults to `lubridate::now()`. It will make it easier to test your function.)
 
 ```{r condex1}
@@ -271,6 +275,8 @@ mean_ci(x, conf = 0.99)
 * `n`: length, or number of rows
 * `p`: number of columns
 
+#### 19.5.2 Checking values
+
 Important to have preconditions, and throw and error (with `stop()`), if they are not true. Also, its good to use the built-in `stopifnot()`: it checks that each argument is `TRUE`, and produces a generic error message if not.
 
 ```{r pre}
@@ -286,3 +292,58 @@ wt_mean <- function(x, w, na.rm = FALSE) {
   sum(w * x) / sum(w)
 }
 ```
+
+#### 19.5.3 Dot-dot-dot (...)
+
+The special argument `...` (pronounced dot-dot-dot) captures any number of arguments that aren't otherwise matched. 
+
+It's useful because you can then send those `...` on to another function. For example:
+
+```{r ddd1}
+commas <- function(...) stringr::str_c(..., collapse = ", ")
+commas(letters[1:10])
+
+rule <- function(..., pad = "-") {
+  title <- paste0(...)
+  width <- getOption("width") - nchar(title) - 5
+  cat(title, " ", stringr::str_dup(pad, width), "\n", sep = "")
+}
+rule("Important output")
+```
+
+However, this makes it easy for typos to go unnoticed. If you just want to capture the values of the `...`, use `list(...)`.
+
+#### 19.5.5 Exercises
+
+1. What does `commas(letters, collapse = "-")` do? Why?
+It throws an error, because the argument `collapse` is passed to `str_c` as part of `...`, so it tries to run `str_c(letters, collapse = "-", collapse = ", ")`.
+
+2. It'd be nice if you could supply multiple characters to the `pad` argument, e.g. `rule("Title", `pad = "-+")`. Why doesn't this currently work? How could you fix it?
+
+It does not work because it duplicates pad by the width minus the length of the string. Can adjust this in the code:
+
+```{r funcargsex2}
+rule <- function(..., pad = "-") {
+  title <- paste0(...)
+  width <- getOption("width") - nchar(title) - 5
+  padchar <- nchar(pad)
+  cat(title, " ",
+      stringr::str_dup(pad, width %/% padchar),
+      # if not multiple, fill in the remaining characters
+      stringr::str_sub(pad, 1, width %% padchar),
+      "\n", sep = "")
+}
+
+rule("Important output")
+rule("Important output", pad = "-+")
+rule("Important output", pad = "-+-")
+```
+
+3. What does the `trim` argument to `mean()` do? When might you use it?
+
+It trims a fraction of observations from each end of the vector (meaning the range) before calculating the mean. This is useful for calculatin a measure of central tendancy that is robust to outliers.
+
+4. The default value for the `method` argument to `cor()` is `c("pearson", "kendall", "spearman")`. What does that mean? What value is used by default?
+
+It means that the `method` argument can take one of those three values. The first value, `"pearson"`, is used by default.
+

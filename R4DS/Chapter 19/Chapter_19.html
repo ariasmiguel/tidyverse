@@ -144,8 +144,8 @@ df$d &lt;- (df$d - min(df$d, na.rm = TRUE)) /
 <p>To write a function you need to first analyze the code.</p>
 <pre class="r"><code>(df$a - min(df$a, na.rm = TRUE)) /
   (max(df$a, na.rm = TRUE) - min(df$a, na.rm = TRUE))</code></pre>
-<pre><code>##  [1] 0.62083344 0.94327775 0.80495844 0.63632181 0.01952731 0.00000000
-##  [7] 0.69198472 0.25870826 0.16931732 1.00000000</code></pre>
+<pre><code>##  [1] 1.0000000 0.6753981 0.2571463 0.4827391 0.6108663 0.7518868 0.0000000
+##  [8] 0.3164585 0.4250835 0.7047674</code></pre>
 <p>There are three key steps to creating a new function: 1. Need to pick a <strong>name</strong> for the function. 2. List the inputs, or <strong>arguments</strong>, to the function inside <code>function(x)</code>. If more arguments, <code>function(x, y, z, etc)</code>. 3. Place the code you have developed in <strong>body</strong> of the function, a <code>{</code> block that immidiately follows <code>function(...)</code>.</p>
 <pre class="r"><code>rescale01 &lt;- function(x) {
   rng &lt;- range(x, na.rm = TRUE, finite = TRUE)
@@ -235,6 +235,10 @@ skewness &lt;- function(x){
 <p>The <code>switch()</code> function allows you to evaluate selected code based on position or name. <code>cut()</code> is also useful to eliminate long chains of <code>if</code> statements.</p>
 <div id="exercises" class="section level4">
 <h4>19.4.4 Exercises</h4>
+<ol style="list-style-type: decimal">
+<li>What’s the difference between <code>if</code> and <code>ifelse()</code>?</li>
+</ol>
+<p>The keyword <code>if</code> tests a single condition, while <code>ifelse</code> tests each element.</p>
 <ol start="2" style="list-style-type: decimal">
 <li>Write a greeting function that says “good morning”, “good afternoon”, or “good evening”, depending on the time of day. (Hint: use a time argument that defaults to <code>lubridate::now()</code>. It will make it easier to test your function.)</li>
 </ol>
@@ -257,7 +261,7 @@ skewness &lt;- function(x){
   }
 }
 greet()</code></pre>
-<pre><code>## [1] &quot;good evening&quot;</code></pre>
+<pre><code>## [1] &quot;good morning&quot;</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>Implement a <code>fizzbuzz</code> function. It takes a single number as input. If the number is divisible by three, it returns “fizz”. If it’s divisible by five it returns “buzz”. If it’s divisible by three and five, it returns “fizzbuzz”. Otherwise, it returns the number. Make sure you first write working code before you create the function.</li>
 </ol>
@@ -334,9 +338,9 @@ mean_ci &lt;- function(x, conf = 0.95) {
 
 x &lt;- runif(100)
 mean_ci(x)</code></pre>
-<pre><code>## [1] 0.4805355 0.5901685</code></pre>
+<pre><code>## [1] 0.4394764 0.5522688</code></pre>
 <pre class="r"><code>mean_ci(x, conf = 0.99)</code></pre>
-<pre><code>## [1] 0.4633109 0.6073931</code></pre>
+<pre><code>## [1] 0.4217554 0.5699898</code></pre>
 <div id="choosing-names" class="section level4">
 <h4>19.5.1 Choosing names</h4>
 <ul>
@@ -347,6 +351,9 @@ mean_ci(x)</code></pre>
 <li><code>n</code>: length, or number of rows</li>
 <li><code>p</code>: number of columns</li>
 </ul>
+</div>
+<div id="checking-values" class="section level4">
+<h4>19.5.2 Checking values</h4>
 <p>Important to have preconditions, and throw and error (with <code>stop()</code>), if they are not true. Also, its good to use the built-in <code>stopifnot()</code>: it checks that each argument is <code>TRUE</code>, and produces a generic error message if not.</p>
 <pre class="r"><code>wt_mean &lt;- function(x, w, na.rm = FALSE) {
   stopifnot(is.logical(na.rm), length(na.rm) == 1)
@@ -359,6 +366,55 @@ mean_ci(x)</code></pre>
   }
   sum(w * x) / sum(w)
 }</code></pre>
+</div>
+<div id="dot-dot-dot" class="section level4">
+<h4>19.5.3 Dot-dot-dot (…)</h4>
+<p>The special argument <code>...</code> (pronounced dot-dot-dot) captures any number of arguments that aren’t otherwise matched.</p>
+<p>It’s useful because you can then send those <code>...</code> on to another function. For example:</p>
+<pre class="r"><code>commas &lt;- function(...) stringr::str_c(..., collapse = &quot;, &quot;)
+commas(letters[1:10])</code></pre>
+<pre><code>## [1] &quot;a, b, c, d, e, f, g, h, i, j&quot;</code></pre>
+<pre class="r"><code>rule &lt;- function(..., pad = &quot;-&quot;) {
+  title &lt;- paste0(...)
+  width &lt;- getOption(&quot;width&quot;) - nchar(title) - 5
+  cat(title, &quot; &quot;, stringr::str_dup(pad, width), &quot;\n&quot;, sep = &quot;&quot;)
+}
+rule(&quot;Important output&quot;)</code></pre>
+<pre><code>## Important output ------------------------------------------------------</code></pre>
+<p>However, this makes it easy for typos to go unnoticed. If you just want to capture the values of the <code>...</code>, use <code>list(...)</code>.</p>
+</div>
+<div id="exercises-1" class="section level4">
+<h4>19.5.5 Exercises</h4>
+<ol style="list-style-type: decimal">
+<li><p>What does <code>commas(letters, collapse = &quot;-&quot;)</code> do? Why? It throws an error, because the argument <code>collapse</code> is passed to <code>str_c</code> as part of <code>...</code>, so it tries to run <code>str_c(letters, collapse = &quot;-&quot;, collapse = &quot;, &quot;)</code>.</p></li>
+<li><p>It’d be nice if you could supply multiple characters to the <code>pad</code> argument, e.g. <code>rule(&quot;Title&quot;,</code>pad = “-+”)`. Why doesn’t this currently work? How could you fix it?</p></li>
+</ol>
+<p>It does not work because it duplicates pad by the width minus the length of the string. Can adjust this in the code:</p>
+<pre class="r"><code>rule &lt;- function(..., pad = &quot;-&quot;) {
+  title &lt;- paste0(...)
+  width &lt;- getOption(&quot;width&quot;) - nchar(title) - 5
+  padchar &lt;- nchar(pad)
+  cat(title, &quot; &quot;,
+      stringr::str_dup(pad, width %/% padchar),
+      # if not multiple, fill in the remaining characters
+      stringr::str_sub(pad, 1, width %% padchar),
+      &quot;\n&quot;, sep = &quot;&quot;)
+}
+
+rule(&quot;Important output&quot;)</code></pre>
+<pre><code>## Important output ------------------------------------------------------</code></pre>
+<pre class="r"><code>rule(&quot;Important output&quot;, pad = &quot;-+&quot;)</code></pre>
+<pre><code>## Important output -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</code></pre>
+<pre class="r"><code>rule(&quot;Important output&quot;, pad = &quot;-+-&quot;)</code></pre>
+<pre><code>## Important output -+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>What does the <code>trim</code> argument to <code>mean()</code> do? When might you use it?</li>
+</ol>
+<p>It trims a fraction of observations from each end of the vector (meaning the range) before calculating the mean. This is useful for calculatin a measure of central tendancy that is robust to outliers.</p>
+<ol start="4" style="list-style-type: decimal">
+<li>The default value for the <code>method</code> argument to <code>cor()</code> is <code>c(&quot;pearson&quot;, &quot;kendall&quot;, &quot;spearman&quot;)</code>. What does that mean? What value is used by default?</li>
+</ol>
+<p>It means that the <code>method</code> argument can take one of those three values. The first value, <code>&quot;pearson&quot;</code>, is used by default.</p>
 </div>
 </div>
 </div>
