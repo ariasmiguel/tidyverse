@@ -117,7 +117,7 @@ Three basic ways to loop over a vector.
 
 3. Looping over the names: `for (nm in names(xs))`. This gives you the name, which you can use to access the value with `x[[nm]]`. Useful if want to use the name in a plot title or a file name. 
 
-If creating an output, make sure to name th results vector like:
+If creating an output, make sure to name the results vector like:
 `results <- vector("list", length(x))`
 `names(results) <- names(x)`
 
@@ -330,7 +330,7 @@ map_dbl(mtcars, mean)
 map(nycflights13::flights, class)
 map_chr(nycflights13::flights, typeof)
 
-# The number of unique values in ea column of `iris`
+# The number of unique values in each column of `iris`
 map_int(iris, ~ length(unique(.)))
 
 # Generates 10 random normals for each of mu = -10, 0, 10, and 100
@@ -353,7 +353,7 @@ map(1:5, runif)
 
 4. What does `map(-2:2, rnorm, n = 5)` do? Why? What does `map_dbl(-2:2, rnorm, n = 5)` do? Why?
 
-This takes samples of `n = 5` fro normal distributions of means -2, -1, 0, 1, and 2, an returns a list with each element a numeric vector of length 5.
+This takes samples of `n = 5` for normal distributions of means -2, -1, 0, 1, and 2, an returns a list with each element a numeric vector of length 5.
 
 ```{r mapex4}
 map(-2:2, rnorm, n = 5)

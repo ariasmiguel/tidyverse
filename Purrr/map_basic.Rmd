@@ -1,0 +1,134 @@
+---
+title: "Purrr"
+author: "Miguel Arias"
+date: "9/12/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width=6, fig.height=4)
+```
+
+## Purrr
+
+```{r start, include = FALSE}
+library(purrr)
+ghr <- repurrrsive::gh_repos
+```
+
+`ghr` is a massive multi-level list that is made up of 6 lists, each representing a GitHub **user**. Each of these lists is made up of around 30 smaller lists and each list has +60 fields with **info** about the repo. 
+
+Let's see how many repositories the first user in `ghr` have:
+```{r user1}
+length(ghr[[1]])
+
+# If we wanted to see how many information fields are  
+# there for the 3rd repo owned by this user:
+length(ghr[[1]][[3]])
+```
+
+In order to find how many repos each user owns:
+```{r loop1}
+lengths <- c()
+for(i in seq_along(ghr)) {
+  lengths <- c(lengths, length(ghr[[i]]))
+}
+lengths
+```
+
+Simpler way! Use `map()`
+```{r map1}
+# List format
+map(ghr, length)
+
+# Double format
+map_dbl(ghr, length)
+```
+
+### Anonymous functions
+
+Formulas are preceded by a tilde "~", can't control what their arguments are named. Functions are regular R functions.
+
+```{r map2}
+map_dbl(ghr, ~length(.x))
+```
+
+By using the tilde notation, we can *explicitly* access that element and place it wherever we want inside the function call, but it's name is going to be `.x` no matter what.
+
+```{r map3}
+map(1:3, ~runif(2, max = .x))
+```
+
+`map()` conveniently allows you to send any fixed arguments you want at the end of the call (note how this time `1:3` is used automatically as the first argument):
+
+```{r map4}
+map(1:3, runif, min = 3, max = 6)
+```
+
+### Mapping the map
+
+Can next `map()` calls. Useful when accessing deeper levels of a list. Let's see how many information fields each repo of each user has:
+
+```{r map5}
+map(ghr, ~map(.x, length))
+map(ghr, ~map_dbl(.x, length))
+```
+
+The first one outputs a very long list of lists, while with `map_dbl()` on the innermost call allows us to output a single vector for each user.
+
+Let's see if we can find the names of the users in the `login` field of the `$owner` list of each repo (note the use of `map_chr()`; this is the character equivalent of `map_dbl()`):
+
+```{r map6}
+# First
+map(ghr, function(user) {
+  map_chr(user, ~.x$owner$login)
+})
+
+# Second
+map(ghr, function(user) {
+  user %>% map_chr(~.x$owner$login)
+})
+
+# Third
+map(ghr, ~map_chr(.x, ~.x$owner$login))
+```
+
+Only once for every user:
+```{r map7}
+map_chr(ghr, ~map_chr(.x, ~.x$owner$login)[1])
+```
+
+### Set names
+
+Use mapping to ge the logins of the users, then `set_names()` to name the user lists according to their logins and finally `pluck()` the list of repos belonging to "jennybc". The dot in `set_names()` stands for the results incoming from the line above:
+
+```{r map8}
+ghr %>%
+  map_chr(~map_chr(.x, ~.x$owner$login)[1]) %>%
+  set_names(ghr, .)
+  pluck("jennybc")
+```
+
+To name the second level (repos). Need to go a level deeper and set the names there too:
+
+```{r map9}
+ghr %>%
+  map(function(user) {
+    user %>%
+      set_names(map(., ~.x$name))
+  }) %>%
+  pluck("jennybc", "eigencoder")
+
+ghr %>%
+  map(~set_names(.x, map(.x, ~.x$name))) %>%
+  pluck("jennybc", "eigencoder")
+```
+
+### Other map functions
+
+* `map2()`: iterates over two lists instead of only note ( note that for formulas we'd use `.x` for the elements of the first list and `.y` for the elements of the second).
+* `map2_xxx()`: analogous to `map_xxx()`
+* `pmap()`: can map over however many elements you want
+* `lmap()`: for mapping with functions that take and return lists
+* `imap()`: for mapping over a list and its names, just like we did above
+* `map_at()/map_if()`: functions that allow you to filter which elements get mapped.

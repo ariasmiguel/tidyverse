@@ -232,7 +232,7 @@ keep(gss_cat, is.factor) %>% names()
 
 Six categorical values: `marital`, `race`, `rincome`, `partyid`, `relig`, `denom`.
 
-3. Why did moving "Not applicable" to the front of the levels move it to the bootom of the plot?
+3. Why did moving "Not applicable" to the front of the levels move it to the bottom of the plot?
 
 Because it gives the level "Not applicable" an integer value of 1.
 

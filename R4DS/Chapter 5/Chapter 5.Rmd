@@ -60,7 +60,7 @@ filter(flights, month == 11 | month == 12)
 nov_dec <- filter(flights, month %in% c(11,12))
 ```
 
-Can simplify complicated subsetting by remembering De Morgan's law: `!(x &  y)` is the same as `!x | !y`, and `!(x | y)` is the same as `!x & !y`.
+Can simplify complicated subsetting by remembering De Morgan's law: `!(x & y)` is the same as `!x | !y`, and `!(x | y)` is the same as `!x & !y`.
 
 Find flights that weren't delayed (on arrival or departure) by more than two hours, you could use either of the following two filters:
 
@@ -111,7 +111,7 @@ filter(flights, arr_delay >= 120 & dep_delay <= 0)
 
   * Were delayed by at least an hour, but made up over 30 minutes in flight
 ```{r filterex6}
-filter(flights, dep_delay >=60 & (dep_delay - arr_delay) <=60)
+filter(flights, dep_delay >= 60 & (dep_delay - arr_delay) <= 30)
 ```
 
   * Departed between midnight and 6am (inclusive)
@@ -370,7 +370,7 @@ transmute(flights,
           sched_dep_time = (sched_dep_time %/% 100) * 60 + sched_dep_time %% 100)
 ```
 
-2. Compare `air_time` with `arr_time - dep_time`. What do you expect to see? What do you expect to see? What do you need to do to fix it?
+2. Compare `air_time` with `arr_time - dep_time`. What do you expect to see? What do you need to do to fix it?
 
 ```{r mutateex2}
 transmute(flights,
@@ -389,6 +389,8 @@ transmute(flights,
           dep_time = (dep_time %/% 100) * 60 + dep_time %% 100,
           air_time_new = arr_time - dep_time)
 ```
+
+`air_time` and `air_time_new` are different because we did not account for different time zones which could have an effect in the air time discrepancy in our calculation.
 
 3. Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you expect those three numbers to be related?
 
@@ -416,7 +418,7 @@ select(delayed, flight, most_delayed) %>%
 1:3 + 1:10
 ```
 
-Because the two vectors are not the same lenght, R **recycles* the shorter one until each vector is the same length. Then R adds the first elements together, then the second elements, and so on.
+Because the two vectors are not the same lenght, R **recycles** the shorter one until each vector is the same length. Then R adds the first elements together, then the second elements, and so on.
 
 6. What trigonometric functions does R provide?
 
@@ -447,7 +449,7 @@ delay <- summarise(by_dest,
                    delay = mean(arr_delay, na.rm = TRUE))
 delay <- filter(delay, count > 20, dest != "HNL")
 
-# It looks like delays increse with distance up to ~750 miles
+# It looks like delays increase with distance up to ~750 miles
 # and then decrease. Maybe as flights get longer there's more
 # ability to make up delays in the air
 ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
@@ -484,7 +486,7 @@ not_cancelled %>%
 
 ### 5.6.3 Counts
 
-Whenever you do any aggregation, it's always a good idea to include either a count (`n()`), or  aocunt of non-missing values (`sum(!is.na(x))`). This way you can check that you're not drawing conclusions based on very small amounts of data. For example, let's look at the planes (id by tail number) that have the highest average delays:
+Whenever you do any aggregation, it's always a good idea to include either a count (`n()`), or a count of non-missing values (`sum(!is.na(x))`). This way you can check that you're not drawing conclusions based on very small amounts of data. For example, let's look at the planes (id by tail number) that have the highest average delays:
 
 ```{r counts1}
 delays <- not_cancelled %>% 
@@ -530,7 +532,7 @@ not_cancelled %>%
   arrange(desc(distance_sd))
 ```
 
-* Measures of rank: `min(x)`, `quantile(x, 0.25)`, `max(x)`. `quantile(x, 0.25)` will find a value of `x` that is gretaer than 25%, and les than the remaining 75%.
+* Measures of rank: `min(x)`, `quantile(x, 0.25)`, `max(x)`. `quantile(x, 0.25)` will find a value of `x` that is gretaer than 25%, and less than the remaining 75%.
 
 ```{r rankingtanki}
 # When do the first and last flights leave each day?
@@ -645,7 +647,7 @@ Which is more important: `arr_delay` or `dep_delay`?
 
 Delay type importance depends on individual preference. If an individual hates waiting in the terminal for the flight to take off, then `dep_delay` is more important and vice versa.
 
-2. Come up with another approach that will give you the same output as `not_cancelled %>% count(dest)` and `not_cancelled %>% count(tailnum, wt = distance)`. No using `count()`.
+2. Come up with another approach that will give you the same output as `not_cancelled %>% count(dest)` and `not_cancelled %>% count(tailnum, wt = distance)`. Not using `count()`.
 
 ```{r summariseex2}
 not_cancelled <- flights %>%

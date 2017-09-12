@@ -102,7 +102,7 @@ Use the `is_*` functions provided by purrr to check the type of vector:
 
 #### 20.4.3 Scalars and recycling rules
 
-Vector recycling can be useful but will cause problems in tidyverse. The vectorised functions in tidyverse will throw errors when you recycle anything other than a scalar. If you do want to recycle, you need to go it yourself with `rep()`:
+Vector recycling can be useful but will cause problems in tidyverse. The vectorised functions in tidyverse will throw errors when you recycle anything other than a scalar. If you do want to recycle, you need to do it yourself with `rep()`:
 
 ```{r recycle, error = TRUE}
 tibble(x = 1:4, y = 1:2)
@@ -319,7 +319,7 @@ attributes(x)
 
 #### Dates and date-times
 
-Numeric vectors taht represent the number of days since 1 January 1970.
+Numeric vectors that represent the number of days since 1 January 1970.
 
 ```{r dates}
 x <- as.Date("1971-01-01")
@@ -364,7 +364,6 @@ x
 class(x)
 typeof(x)
 attributes(x)
-
 ```
 
 2. Try and make a tibble that has columns with different lengths. What happens?

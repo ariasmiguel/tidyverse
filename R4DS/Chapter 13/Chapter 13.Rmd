@@ -159,8 +159,7 @@ airports %>%
 ```
 
 ```{r keysex1.1}
-avg_dest_delays <-
-  flights %>%
+avg_dest_delays <- flights %>%
   group_by(dest) %>%
   # arrival delay NA's are cancelled flights
   summarise(delay = mean(arr_delay, na.rm = TRUE)) %>%
@@ -185,8 +184,7 @@ flights %>%
 3. Is there a relationship between the age of a plane and its delays?
 
 ```{r keysex3}
-plane_ages <-
-  planes %>%
+plane_ages <- planes %>%
   mutate(age = 2013 - year) %>%
   select(tailnum, age)
 
@@ -217,8 +215,7 @@ flights %>%
 2. Filter flights to only show flights with planes that have flown at least 100 flights
 
 ```{r filterjoinex1}
-planes_gt100 <- 
-  filter(flights) %>%
+planes_gt100 <- filter(flights) %>%
   group_by(tailnum) %>%
   count() %>%
   filter(n > 100)

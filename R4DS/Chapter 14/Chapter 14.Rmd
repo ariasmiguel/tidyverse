@@ -272,7 +272,7 @@ words[starts_with_x | ends_with_x]
 ```{r strdetectex2}
 starts_with_vowel <- str_detect(words, "^[aeiou]")
 ends_with_cons <- str_detect(words, "[^aeiou]$")
-words[starts_with_vowel | ends_with_cons] %>% head()
+words[starts_with_vowel & ends_with_cons] %>% head()
 ```
 
 3. Any words that contain at least one of each different vowel?
@@ -374,7 +374,7 @@ sentences[str_detect(sentences, numword)] %>%
   str_extract(numword)
 ```
 
-2. Find all contractions. Separate out the pieces before and after teh apostrophe.
+2. Find all contractions. Separate out the pieces before and after the apostrophe.
 ```{r groupedmatchex2}
 contraction <- "([A-Za-z]+)'([A-Za-z]+)"
 sentences %>%

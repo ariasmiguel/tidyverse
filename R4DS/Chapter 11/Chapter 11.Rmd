@@ -151,7 +151,7 @@ If the `decimal_mark` is set to the comma `","`, then the `grouping_mark` must b
 
 5. What's the difference between `read_csv()` and `read_csv2()`?
 
-The delimeter since `read_csv2()` uses a semi-colon (`;`) instead of a comma (`,`).
+The delimeter. `read_csv2()` uses a semi-colon (`;`) instead of a comma (`,`).
 
 7. Generate the correct format string to parse each of the following dates and times:
 

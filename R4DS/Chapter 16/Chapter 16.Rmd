@@ -80,6 +80,7 @@ flights_dt <- flights %>%
 Now we can visualize the distribution of departure time across the year:
 
 ```{r date6}
+# Across the year
 flights_dt %>% 
   ggplot(aes(dep_time)) + 
   geom_freqpoly(binwidth = 86400) # 86400 seconds = 1
@@ -91,13 +92,13 @@ flights_dt %>%
   geom_freqpoly(binwidth = 600) # 600 s = 10 minutes
 ```
 
-Mqy want to switch between date and date-time:
+May want to switch between date and date-time:
 * `as_datetime()`
 * `as_date()`
 
 #### 16.2.4 Exercises
 
-1. What happens if you parse a string that conatins invalid dates?
+1. What happens if you parse a string that contains invalid dates?
 
 ```{r ex1}
 ymd(c("2010-10-10", "bananas"))
@@ -211,7 +212,7 @@ flights_dt %>%
   select(dep_time_, dep_time, sched_dep_time, dep_delay)
 ```
 
-There are discrepancies. These are flights in whihc the actual departure time is on the next day relative to the scheduled departure time.
+There are discrepancies. These are flights in which the actual departure time is on the next day relative to the scheduled departure time.
 
 3. Compare `air_time` with the duration between the departure and arrival. Explain your findings
 
@@ -307,7 +308,7 @@ years(1)
 10 * (months(6) + days(1))
 days(50) + hours(25) + minutes(2)
 
-# Can use periods to fix anomaliy of overnight flights
+# Can use periods to fix anomaly of overnight flights
 flights_dt <- flights_dt %>% 
   mutate(
     overnight = arr_time < dep_time,
