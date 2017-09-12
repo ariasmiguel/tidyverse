@@ -141,7 +141,7 @@ ggplot(data = mpg) +
 
 By doing so, we get a a positively slope line with a 45 degree angle.
 
-5. What deos the `stroke` aesthetic do? What shapes does it work with?
+5. What does the `stroke` aesthetic do? What shapes does it work with?
 
 The `stroke` aesthetic increases the size of the border or stroke of the point.
 
