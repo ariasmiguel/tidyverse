@@ -1,0 +1,300 @@
+---
+title: "Purrr - Wickham"
+author: "Miguel Arias"
+date: "9/13/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Cwickmham Purrr-Tutorial
+
+### Chapter 1 - map
+```{r start, include = FALSE}
+library(purrr)
+library(repurrrsive)
+library(tidyverse)
+```
+
+Includes objects: sw_films, sw_people, sw_vehicles, sw_starships, sw_planets & sw_species
+
+How many elements are in sw_people
+```{r people1}
+length(sw_people)
+```
+
+Who is the first person in sw_people?
+```{r people2}
+sw_people[[1]] # Luke Skywalker
+```
+
+To obtain the first person and it's name:
+```{r people3}
+sw_people[[1]][1]
+
+# A list inside a list
+sw_people[1]
+
+# A list, dropped one level of hierarchy
+sw_people[[1]]
+```
+
+### map()
+
+`map( .x, .f, ...)` for each element of `.x` do `.f`.
+
+* `.x`: a vector, a list, a data frame (for each column)
+* `.f`: 
+
+How many starships has each character been on?
+
+1. Do it for one element
+```{r one_element}
+luke <- sw_people[[1]]
+length(luke$starships)
+```
+
+2. Turn it into a recipe
+```{r recipe1}
+# ~ length( .x$starships)
+```
+
+3. Use `map()` to do it for all elements
+```{r all_elements}
+starships <- map(sw_people, ~length(.x$starships))
+print(starships[0:5])
+```
+
+For later
+```{r planet_lookup}
+planet_lookup <- map_chr(sw_planets, "name") %>%
+  set_names(map_chr(sw_planets, "url"))
+planet_lookup
+# save(planet_lookup, file = "Purrr/data/planet_lookup.rda", compress = FALSE)
+```
+
+Find the name of each characters home world
+```{r homeworld1}
+luke$homeworld
+planet_lookup[luke$homeworld]
+map(sw_people, ~ planet_lookup[.x$homeworld])
+```
+
+### ROADmap()
+
+`map()` always returns a list:
+
+* Other types of output
++ `map_lgl()`: logical vector
++ `map_int()`: integer vector
++ `map_dbl()`: double vector
++ `map_chr()`: character vector
++ `walk()`: when you want nothing at all, use a funciton for its side effects
+
+```{r names_useful}
+# names can be useful
+sw_people <- sw_people %>%
+  set_names(map_chr(sw_people, "name"))
+```
+
+**REPLACE** `map()` with the appropriately typed function
+```{r replace}
+# How many starships has each character been in?
+map_int(sw_people, ~ length(.x[["starships"]]))
+
+# What color is each character's hair?
+map_chr(sw_people, ~.x[["hair_color"]])
+
+# Is the character male?
+map_lgl(sw_people, ~.x[["gender"]] == "male")
+
+# How heavy is each character?
+map_chr(sw_people, ~ .x[["mass"]]) %>% # Want is as a number
+  readr::parse_number(na = "unknown")
+```
+
+* Other ways of specifying `.f`
++ `.f` can be a formula: `map(.x, .f = ~ DO SOMETHING WITH .x)`
++ `.f` can be a string or integer:
+`map(.x, .f = "some_name")`
+`map(.x, ~ .x[["some_name"]])`
++ `.f` can be a function:
+`map(.x, .f = some_function, ...)`
+`map(.x, ~ some_function(.x, ...))`
+
+### Star Wars Challenges
+
+1. Which film (see `sw_films`) has the most characters?
+```{r sw_challenge1}
+# Set names of the films
+# sw_films1 <- sw_films %>%
+#   set_names(map_chr(sw_films, "name"))
+
+# For the first film
+length(sw_films[[1]]$characters) 
+
+# Number of characters for all films
+map_int(sw_films, ~length(.x$characters)) %>%
+  set_names(map_chr(sw_films, "title")) %>% # Add "titles"
+  sort(decreasing = TRUE)
+
+# Cwickham version - Shorter (more understandable)
+map(sw_films, "characters") %>%
+  map_int(length) %>%
+  set_names(map_chr(sw_films, "title")) %>%
+  sort(decreasing = TRUE)
+```
+
+2. Which `sw_species` has the most possible eye colors?
+```{r sw_challenge2}
+# Do it for one
+sapply(gregexpr("\\W+", sw_species[[1]]$eye_colors), length) + 1
+
+# Do it for all
+map_dbl(sw_species, ~ sapply(gregexpr("\\W+", .x$eye_colors), length) + 1) %>%
+  set_names(map_chr(sw_species, "name")) %>%
+  sort(decreasing = TRUE)
+
+# CWickham Version - No need for sapply
+map_chr(sw_species, "eye_colors") %>%
+  strsplit(", ") %>%
+  map_int(length) %>%
+  set_names(map_chr(sw_species, "name")) %>%
+  sort(decreasing = TRUE)
+```
+
+3. Which `sw_planets` do we know the least about (i.e. have the most `"unknown"` entries)?
+```{r sw_challenge3}
+# For one (Checks if there are unknown[NA] values)
+map_lgl(sw_planets[[61]], ~ "unknown" %in% .x) %>%
+  sum()
+
+# For all
+map_int(sw_planets,
+        ~ map_lgl(.x, ~ "unknown" %in% .x) %>% sum()) %>%
+  set_names(map_chr(sw_planets, "name")) %>%
+  sort(decreasing = TRUE)
+```
+
+### Iteration functions
+
+`map2(.x, .y, .f, ...)`
+
+`map2_xxx()` works the same way as `map_xxx()`.
+
+* For each function, which two arguments might be useful to iterate over?
++ `download.file()`: for each url download to `destflie`. `walk2()`, `map2_int()`.
++ `rnorm()`: for each n generate a Normal sample with `mean` (or `sd`).
++ `lm()` for each data fit a model (`formula`)
++ `predict.lm()` for each model(object), generate predictions at data (`newdata`)
++ `readr::write_csv()` for each data frame (x) save to path. Similar for `ggplot::ggsave()` for each `plot` save to `filename`. `walk2()`
+
+1. Use `map2()`. For each country in `gap_split_small` create a ggplot of life expectancy through time with a title.
+
+```{r life_expectancy}
+# Data
+gap_split_small <- gap_split[1:10]
+countries <- names(gap_split_small)
+
+# Do it for one
+ggplot(data = gap_split_small[[1]], 
+       mapping = aes(x = year, y = lifeExp)) +
+  geom_point(aes(size = pop)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = countries[[1]],
+    x = "Time",
+    y = "Life Expectancy"
+  ) +
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Create a function for Life Expectancy over time
+countries_lifexp <- function(data, name) {
+  ggplot(data, aes(year, lifeExp)) +
+       geom_point(aes(size=pop)) +
+       geom_smooth(se = FALSE) +
+       labs(
+         title = name,
+         x = "Time",
+         y = "Life Expectancy"
+       ) +
+       theme_bw() + 
+       theme(plot.title = element_text(hjust = 0.5))
+}
+
+# For all the countires
+plots <- map2(gap_split_small, countries, ~countries_lifexp(.x, .y))
+
+plots[[3]]
+
+# In order to print all plots:
+
+# walk(plots, print)
+```
+
+### Purrr and list columns
+
+**Data** should be in a data frame as soon as it makes sense!
+Data frame: **cases** in rows, **variables** in columns
+
+#### Purr can help turn lists into tibbles
+
+```{r lists_tibble}
+library(tidyverse)
+library(repurrrsive)
+# A useful lookup table -----------------------------------------------
+film_number_lookup <- map_chr(sw_films, "url") %>%
+  map(~ stringr::str_split_fixed(.x, "/", 7)[, 6])  %>%
+  as.numeric() %>%
+  set_names(map_chr(sw_films, "url"))
+
+# Use purrr to turn list into table
+people_tbl <- tibble(
+  name    = sw_people %>% map_chr("name"),
+  films   = sw_people %>% map("films"), # results in list column
+  height  = sw_people %>% map_chr("height") %>%
+    readr::parse_number(na = "unknown"), # needs some parsing
+  species = sw_people %>% map_chr("species", .null = NA_character_) # isn't in every element
+)
+
+# Turning parts of our list to a tibble ---------------------------------
+people_tbl$films
+
+# Use map with mutate to manipulate list columns
+people_tbl <- people_tbl %>%
+  mutate(
+    film_numbers = map(films,
+      ~ film_number_lookup[.x]),
+    n_films = map_int(films, length)
+  )
+
+people_tbl %>% dplyr::select(name, film_numbers, n_films)
+```
+
+Create a new character column that collapses the film numbers into a single string,
+
+e.g. for Luke: "6,3,2,1,7"
+
+```{r collapse_num}
+# Apply paste0 function to create character vector
+people_tbl <- people_tbl %>%
+  mutate(films_squashed = map_chr(film_numbers, paste0,
+                                  collapse = ", "))
+
+people_tbl %>% dplyr::select(name, n_films, films_squashed)
+```
+
+### Other features of purrr
+
+* `pmap( .l, .f, ...)`: to each element of each vector in `.l`, apply `.f`.
+* `invoke_map(.f, .x, ...)`: for each function in `.f`, apply it to `.x`
+
+### Lists and functions
+
+`purrr` provides a pile of functions to make working with them easier
+**Functions**: `safely()`, `possibly()`, `partial()`.
+**Lists**: `transpose()`, `accumulate()`, `reduce()`, `every()`, `order_by()`.
+
