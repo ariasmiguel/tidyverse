@@ -1,0 +1,161 @@
+---
+title: "Base R and ply functions"
+author: "Miguel Arias"
+date: "9/13/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(repurrrsive)
+```
+
+## Relationship to base and plyr functions
+
+### `lapply()` vs. `purrr:map()`
+
+The core mapping functions of base and purrr, respectively. "List in, list out". The main difference is access to purrr's shortcuts for indexing by name or  position and for creating anonymous functions.
+
+```{r vs1}
+# Base
+lapply(got_chars[1:3],
+       function(x) x[["name"]])
+
+# purrr
+map(got_chars[1:3], "name")
+```
+
+### `sapply()` vs NONE
+
+`sapply()` is a base function that attempts to apply a reasonable simplification to the output of `lapply()`. It's handy for interactive use, but due t unpredictability of it return value, it's unwise to use it in programming. No equivalent in `purrr`
+
+Problem demonstration:
+
+```{r vs2}
+aliases1 <- sapply(got_chars[20:22], function(x) x[["aliases"]])
+str(aliases1)
+
+aliases2 <- sapply(got_chars[c(3, 22, 27)], function(x) x[["aliases"]])
+str(aliases2)
+```
+
+With `purrr` use `map()` to get a list back or `map_chr()` to get the atomic character vector. If you use `map_chr()` when you should not, you'll get an informative error right away.
+
+### `vapply()` vs `map_*()`
+
+Baes `vapply()` requires that you specify a template for reutnr value and is described as a safer alternative to `sapply()`. 
+
+The closes `purrr` functions are the type-specific mapping functions:
+* `map_lgl()`, `map_int()`, `map_dbl()`, and `map_chr()`.
+
+`vapply()` always simplifies. NOT GOOD
+
+### `map_df()`
+
+This function is "list in, data frame out" and there is no true base equivalent. Given the centrality of data frames for analysis. It is handy to produce them without resurting to `do.call()`.
+
+```{r vs3}
+map_df(got_chars[23:25],
+       `[`, c("name", "playedBy"))
+```
+
+### `mapply()` vs. `map2()`, `pmap()`
+
+When you need to iterate over 2 or more vectors/lists in parallel, the base option is `mapply()`. 
+
+For exactly two vector inputs, `purrr` has `map2()` and for an arbitrary number of vector inputs, use `purrr` `pmap()`.
+
+```{r vs4}
+# Base
+nms <- vapply(got_chars[16:18],
+              `[[`, character(1), "name")
+birth <- vapply(got_chars[16:18],
+                `[[`, character(1), "born")
+mapply(function(x, y) paste(x, "was born", y),
+       nms, birth)
+
+# Purrr
+nms <- got_chars[16:18] %>% 
+  map_chr("name")
+birth <- got_chars[16:18] %>% 
+  map_chr("born")
+map2_chr(nms, birth, ~ paste(.x, "was born", .y))
+
+df <- tibble::tibble(
+  nms, 
+  connector = "was born",
+  birth
+)
+pmap_chr(df, paste)
+```
+
+### `aggregate()` vs `dplyr::summarize()`
+
+```{r vs5}
+library(dplyr)
+library(gapminder)
+(mini_gap <- gapminder %>%
+    filter(country %in% c("Canada", "Germany"), year > 2000) %>% 
+    droplevels())
+```
+
+Simple summary of a single variable for each country. Specifically, take the mean of life expectancy. In this case, the formula method of base `aggregate()` is quite nice.
+
+```{r vs6}
+# Base
+aggregate(lifeExp ~ country, mini_gap, mean)
+
+# Tidyverse
+# Simpler
+mini_gap %>% 
+  group_by(country) %>% 
+  summarize(lifeExp = mean(lifeExp))
+
+mini_gap %>% 
+  group_by(country) %>% 
+  summarize_at(vars(lifeExp, gdpPercap), mean)
+
+gapminder %>% 
+  group_by(country) %>% 
+  summarize(cor = cor(lifeExp, year))
+```
+
+### `by()` vs `tidyr::nest()`
+
+Fit a linear model of life expectancy against year. On the tidyverse slide, we now create a nested data frame, with one meta-row per country. Therefore we load tidyr to get `nest()`. The data needed for each country's linear model is stored as a list-column of country-specific data frame.
+
+```{r vs7}
+# Base
+by_obj <- by(gapminder,
+             gapminder$country, 
+             function(df) lm(lifeExp ~ year, data = df))
+str(by_obj[1:2], max.level = 1)
+
+by_obj[[1]]
+
+# Tidyverse
+nested_df <- gapminder %>% 
+  group_by(country, continent) %>% 
+  nest() %>% 
+  mutate(fit = map(data, ~ lm(lifeExp ~ year, data = .x)))
+str(nested_df$fit[1:2], max.level)
+    
+nested_df$fit[[1]]
+
+# Inspect the fits for Oceania
+nested_df %>% 
+  filter(continent == "Oceania") %>% 
+  .$fit
+
+# Form a data frame with one row per country and variables for country,
+# continent, estimated intercept, and estimated slope. I also want to 
+# guarrantee that the country and continent factors have the same 
+# levels as they originally had in gapminder
+
+nested_df %>% 
+  mutate(coefs = map(fit, coef),
+         intercept = map_dbl(coefs, 1),
+         slope = map_dbl(coefs, 2)) %>% 
+  select(country, continent, intercept, slope)
+```

@@ -7,15 +7,21 @@ library(purrr)
 # this to replicate for Dec 6 - Dec 10
 
 library(tidyverse)
+library(stringr)
 
 # Downloading data --------------------------------------------------------
 # note date is part of url
 download.file("https://www.wunderground.com/history/airport/KCVO/2016/12/8/DailyHistory.html?format=1", "data/weather/dec8.csv")
 
+link <- "https://www.wunderground.com/history/airport/KCVO/2016/12/8/DailyHistory.html?format=1"
+dates <- c("6", "7", "8", "9", "10")
+
+# Download all files
+
 # Read in file -----------------------------------------------------------
 col_types <- c("cnnnnnccccccnc")
 
-dec8 <- read_csv("data/weather/dec8.csv", skip = 1, na = c("-", "N/A"), 
+dec8 <- read_csv("Purrr/Challenges/data/weather/dec8.csv", skip = 1, na = c("-", "N/A"), 
   col_types = col_types)
 
 # Add date columns --------------------------------------------------------
@@ -31,5 +37,5 @@ dec8 <- mutate(dec8,
 qplot(datetime, TemperatureF, data = dec8,
   geom = "line") +
   ggtitle("Dec 8")
-ggsave("data/weather/plots/dec8.png")
+ggsave("Purrr/Challenges/data/weather/plots/dec8.png")
 

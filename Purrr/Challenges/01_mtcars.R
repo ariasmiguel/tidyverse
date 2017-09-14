@@ -24,3 +24,11 @@ map(mtcars_by_cyl, ~ lm(mpg ~ disp, .x))
 map(mtcars_by_cyl, ~ lm(mpg ~ disp, .x)) %>%
   map_dbl(~summary(.x)$r.squared) # extracts r^2 from the regression
 
+# Easier way to complete the task
+shortcut <- mtcars %>%
+  split(.$cyl) %>%
+  map(~lm(mpg ~ disp, data = .)) # Get stats
+
+shortcut %>%
+  map(summary) %>%
+  map_dbl("r.squared")

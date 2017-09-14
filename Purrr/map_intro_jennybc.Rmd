@@ -1,0 +1,336 @@
+---
+title: "Map"
+author: "Miguel Arias"
+date: "9/13/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(repurrrsive)
+library(listviewer)
+library(magrittr)
+```
+
+## Extract elements: `map()`
+
+`purrr::map()` is a function for applying a function to each element of a list. Square root example:
+
+```{r map1}
+map(c(9, 16, 25), sqrt)
+```
+
+Basic `map(YOUR_LIST, YOUR_FUNCTION)`.
+
+### Name and position shortcuts
+
+Who are the GOT characters?
+
+```{r map2}
+map(got_chars[1:4], "name")
+
+# Obtain through the third element of the list (AKA Name)
+map(got_chars[5:8], 3)
+
+# Find the names of the elements associated with a single character
+names(got_chars[[1]])
+
+```
+
+Can use it together with the `pipe %>%`. These calls produce the same result
+
+```{r map3}
+got_chars %>%
+  map("name")
+got_chars %>%
+  map_chr(3)
+```
+
+Exercises
+
+1. Use `names()` to inspect the names of the list elements associated with a single character. What is the index or position of the `playedBy` element? Use the character and position shortcuts to extract the `playedBy elements for all characters.
+```{r map_ex1}
+# Inspect the names
+(n <- names(got_chars[[1]]))
+
+# What is the index or position of `playedBy`
+match("playedBy", n)
+
+# Extract "playedBy" for all characters
+got_chars %>%
+  map("playedBy")
+
+got_chars %>%
+  map(18)
+```
+
+4, 5. Write a function that takes a list and a string as input and returns the list element that bears the name in the string. Apply this to `got_chars` via `map()`. Write another function that takes a list and an integer as input and returns the list element at that position.
+```{r map_ex2}
+# This can be done with the map function 
+x <- c("url", "mother", "name")
+y <- 1:3
+
+# For character
+list_ele <- function(list, string){
+  list[string]
+}
+map(got_chars, ~list_ele2(.x, x))
+
+
+# For integer
+list_ele2 <- function(list, string){
+  list[string]
+}
+
+map(got_chars, ~list_ele2(.x, y))
+
+# Incorporates map inside the function
+list_element <- function(list, string){
+  map(list, `[`, string)
+}
+```
+
+### Type-specific map
+
+`map()` always returns a list. May use other `map_xxx()` functions:
+* `map_chr()`, `map_lgl()`, `map_int()`, `map_dbl()`.
+
+```{r map4}
+# Find the list element that is logical
+got_chars[[1]] %>%
+  map_lgl(is.logical)
+
+# Extract "alive" for all characters into a logical vector
+got_chars %>%
+  map_lgl("alive")
+```
+
+### Extract multiple values
+
+In order to extract multiple values with map:
+
+```{r extract_multiple}
+x <- map(got_chars, `[`, c("name", "culture", "gender", "born"))
+str(x[16:17])
+```
+
+Some people find this ugly and might prefer the `extract()` function from magrittr.
+
+```{r magrittr}
+library(magrittr)
+x <- map(got_chars, extract, c("name", "culture", "gender", "born"))
+str(x[18:19])
+```
+
+Exercises
+
+1. Use your list inspection skills to determine the position of the elements named "name", "gender", "culture", "born", and "died". Map `[` or `magrittr::extract()` over users, requesting these elements by position instead of name.
+
+```{r extract_ex1}
+# Check the names
+(n <- names(got_chars[[1]]))
+
+# Find the positions of "name", "gender", "culture", "born", and "died"
+z <- c("name", "gender", "culture", "born", "died")
+el_ex <- match(z, n)
+
+# Extract these elements from the list
+got_chars %>%
+  map(extract, el_ex)
+```
+
+### Data frame output
+
+In order to "stack up" the results of our `map()` functions row-wise, i.e., one row per user and variables for "name", "gender", etc. Use `map_df()`.
+
+```{r df1}
+# Use map_df(), however this might cause problems when programming
+map_df(got_chars, extract, el_ex)
+```
+
+In order to prevent problems:
+
+```{r df2}
+library(tibble)
+got_chars %>% {
+  tibble(
+       name = map_chr(., "name"),
+    culture = map_chr(., "culture"),
+     gender = map_chr(., "gender"),       
+         id = map_int(., "id"),
+       born = map_chr(., "born"),
+      alive = map_lgl(., "alive")
+  )
+}
+```
+
+Exercises
+
+1. Use `map_df()` to create the same data frame as above, but indexing with a vector of positive integers instead of names.
+
+```{r df_ex1}
+z2 <- c("name", "culture", "gender", "id", "born", "alive")
+
+# Extract the index for each name
+df_ex <- match(z2, n)
+
+# Create data frame from index
+map_df(got_chars, extract, df_ex)
+```
+
+#### Simplifying data from a list of GitHub users
+
+```{r setup2, include = FALSE}
+library(repurrrsive)
+library(listviewer)
+library(jsonlite)
+library(dplyr)
+library(tibble)
+library(purrr)
+```
+
+### Several GitHub users
+
+`gh_users` is *a recursive list*:
+* one component for each of the 6 GitHub users
+* each component is, in turn, a list with info on the user
+
+Use `str()` with arguments such as `max.level` and `list.len`. It often pays off to do deeper inspection on a single element.
+
+```{r gh_users1}
+str(gh_users, max.level = 1)
+str(gh_users[[1]], list.len = 6)
+
+listviewer::jsonedit(gh_users)
+```
+
+Exercises
+
+4. Recall the list and vector indexing techniques. Inspect elements 1, 2, 6, 18, 21, and 24 of the list component for the 5th GitHub user. One of these should be the URL for the user's profile on GitHub.com. Go there and compare info you see there with the info you just extracted from `gh_users`.
+
+```{r gh_user_ex1}
+# Obtain user data
+user5 <- gh_users[5]
+
+# Determine index values
+user_el <- c(1L,2L,6L,18L,21L,24L)
+
+# Extract the data from the list
+map(user5, extract, user_el)
+```
+
+
+### Type-specific map
+
+Exercises
+
+1. For each user, the second element is named "id". This is the user's GitHub id number, where it seems like the parson with an id of, say, 10 was the 10th person to sign up for GitHub. Use a type-specif form of `map()` and an extraction shortcut to extract the ids of these 6 users.
+
+```{r gh_user_ex2}
+map_int(gh_users, "id") %>%
+  set_names(map_chr(gh_users, "name"))
+```
+
+2. Use your list inspection strategies to find the list element that is logical. Use a type-specific form of `map()` and an extraction shortcut to extract this for all 6 users.
+
+```{r gh_user_ex3}
+gh_users[[1]] %>%
+  map_lgl(is.logical)
+
+# site_admin is the logical element
+gh_users %>%
+  map_lgl("site_admin") %>%
+  set_names(map_chr(gh_users, "name"))
+
+```
+
+3. Use your list inspection strategies to find elements other than `id` that are numbers. Practice extracting them.
+
+```{r gh_user_ex4}
+# Find the elements that are numeric
+gh_numbers <- gh_users[[1]] %>%
+  map_lgl(is.numeric)
+
+# Extract the numeric elements from the vector
+gh_numbers2 <- gh_user_names[gh_numbers]
+gh_numbers3 <- match(gh_numbers2, gh_user_names)
+
+# Extract the numeric elements from the lists
+gh_users %>%
+  map(extract, gh_numbers3) %>%
+  set_names(map_chr(gh_users, "name"))
+
+# Set it up as a data frame
+gh_users %>% {
+  tibble(
+            id = map_int(., gh_numbers3[1]),
+  public_repos = map_int(., gh_numbers3[2]),
+  public_gists = map_int(., gh_numbers3[3]),
+     followers = map_int(., gh_numbers3[4]),
+     following = map_int(., gh_numbers3[5])
+  )
+}
+```
+
+### Repositories for each user
+
+The `gh_users` list from above has one primary level of nesting, but it's common to have even more.
+
+`gh_repos` is a list with:
+* one component for each of our 6 GitHub users
+* each component is another list of that user's repositories (or just the first 30, if user has more than 30)
+* several of those list components are, again, a list.
+
+Exercises 
+
+1. How many elements does `gh_repos` have? How many elemends does each of these elements have?
+
+```{r gh_repos_ex1}
+str(gh_repos, max.level = 1)
+str(gh_repos, max.level = 2, list.len = 2)
+str(gh_repos, max.level = 3, list.len = 6)
+listviewer::jsonedit(gh_repos)
+```
+
+2. Extract a list with all the info for one repo for one user. Use `str()` on it. Maybe print the whole thing to screen. How many elements does this list have and what are their names? Do the same for at least on other repo from a different user and get a rough sense for whether these repo specific lists tend to look similar.
+
+```{r gh_repos_ex2}
+# First repo of first user
+str(gh_repos[[1]][1], list.len = 6)
+str(gh_repos[[3]][1], list.len = 6)
+
+# The repo specific lists tend to look similar
+```
+
+3. What are three pieces of repo information that strike you as the most useful?
+
+The `name`, `id`, `owner$login`, `description`, `size`.
+
+### Vector input to extraction shortcuts
+
+Now we use the indexing shortcuts in a more complicated setting. Instead of providing a single name or position, we use a vector:
+* the `j`-th element addresses the `j`-th level of the hierarchy
+
+It's easiest to see in a concrete example. We get the full name (element 3) of the first repository listed for each user.
+
+```{r multiple_hier1}
+gh_repos %>%
+  map_chr(c(1, 3)) # 3rd element of the 2nd level for each user
+```
+
+Extracts the first repo for each user and, within that, the 3rd piece of information for the repo.
+
+Exercises
+1. Each repository carries information about its owner in a list. Use `map_chr()` and the position indexing shortcut with vector input to get an atomic character vector of the 6 GitHub usrenames for our 6 users. 
+
+```{r multiple_hier_ex1}
+str(gh_repos[[1]][4], list.len = 6)
+gh_repos %>%
+  map_chr(c(1, 4, 1))
+```
+
+
+
+
+

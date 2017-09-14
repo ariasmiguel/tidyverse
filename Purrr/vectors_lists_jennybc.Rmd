@@ -1,0 +1,173 @@
+---
+title: "jennybc_purrr basics"
+author: "Miguel Arias"
+date: "9/13/2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Vectors and Lists
+
+### Atomic Vectors
+
+Useful to understand lists as a data structure that generalizes atomic vectors.
+
+The garden variety R object is an **atomic vector** like these:
+
+```{r atomic_vector}
+(v_log <- c(TRUE, FALSE, FALSE, TRUE))
+(v_int <- 1:4)
+(v_doub <- 1:4 * 1.2)
+(v_char <- letters[1:4])
+```
+
+Each **atom** has the same flavor, by which I roughly mean type or storage mode, and is a scalar, which means "has length one". 
+
+##### Exercises
+
+1. Define the vectors above or similar. Use the family of `is.*()` functions to confirm vector type, e.g. `is.logical()`.
+
+```{r vector_type1}
+is.logical(v_log)
+is.integer(v_int)
+is.double(v_doub)
+is.character(v_char)
+```
+
+2. What do `is.numeric()`, `is.integer()`, and `is.double()` return for the vectors that hold floating point number versus integers?
+
+```{r vector_type2}
+is.numeric(v_doub) # Returns logical value TRUE
+is.integer(v_doub) # Returns logical value FALSE
+is.double(v_doub)  # Returns logical value TRUE
+```
+
+To "index a vector" means to address specific elements or atoms, either for reading or writing. We index a vector using square brackes, like so: `x[something]`. 
+* Logical vector: keep elements of `x` for which `something` is `TRUE` or drop those for which it's `FALSE`
+
+```{r logical_vector}
+v_char[c(FALSE, FALSE, TRUE, TRUE)]
+v_char[v_log]
+```
+
+* Integer vector, all positive: the elements specified in `something` are kept
+* negative integers, all negative: the elements specified in `something` are dropped
+
+```{r integer_vector}
+v_doub[2:3]
+v_char[-4]
+```
+
+* Character vector: presumes that `x` is a named vector and the elements whose names are specified in `something` are kept *not shown here, since none of the vectors are named*.
+
+### Coercion
+
+There's a hierechy of types: the more primitive ones cheerfully and silently convert to those higher up in the food chain. Here's the order:
+1. logical
+2. integer
+3. double
+4. character
+
+For explicit coercion, use the `as.*()` functions
+
+```{r coercion1}
+v_log
+as.integer(v_log)
+v_int
+as.numeric(v_int)
+v_doub
+as.character(v_doub)
+as.character(as.numeric(as.integer(v_log)))
+```
+
+**Coercion** can be triggered by other actions, such as assigning a scalar of the wrong type into an existing vector. 
+
+```{r coercion2}
+v_doub_copy <- v_doub
+str(v_doub_copy)
+
+v_doub_copy[3] <- "uhoh"
+srt(v_doub_copy)
+```
+
+### Lists
+
+Lists useful when:
+1. Individual atoms might have length greater than 1.
+2. Individual atoms might not be of the same flavor.
+
+**A list is actually a vector in R, but it's not an atomic vector**. We construct a list explicitly with `list()` but, like atomic vectors, more lists are created some other way in real life.
+
+```{r lists1}
+(x <- list(1:3, c("four", "five")))
+(y <- list(logical = TRUE, integer = 4L, double = 4 * 1.2, character = "character"))
+(z <- list(letters[26:22], transcendental = c(pi, exp(1)), f = function(x) x^2))
+```
+
+Lists components can:
+1. Be heterogeneous
+2. Have different lengths
+3. Have names, or not
+
+Lists are more general atomic vectors, but just like atomic vectors they have length and can be indexed.
+
+### List indexing
+
+Three ways:
+
+1. With single square brackets, i.e. just like we indexed atomic vectors. Note this **always returns a list**, even if we request a single component.
+
+```{r list_index1}
+x[c(FALSE, TRUE)]
+y[2:3]
+z["transcendental"]
+```
+
+2. With double square brackets. This can only be used to access a single component and it returns the "naked" component. You can request a compoennt with a positive integer or by name.
+
+```{r list_index2}
+x[[2]]
+y[["double"]]
+```
+
+3. With the `$`, which you may already use to extract a single variable from a data frame (which is a special kind of list!). Like `[[`, this can only be used to access a single component, but it is even more limited: Must specify the component by name
+
+```{r list_index3}
+z$transcendental
+```
+
+### Vectorized operations
+
+Consider how to square the integers 1 through `n`. 
+
+```{r vect_op1}
+# Brute force method
+n <- 5
+res <- rep(NA_integer_, n)
+for(i in seq_len(n)) {
+  res[i] <- i ^2
+}
+res
+
+# R way
+n <- 5
+seq_len(n) ^ 2
+```
+
+However, some functions do not work with lists.
+
+In order to apply the functions to a list:
+* Use `purrr:map()`. The first arg is the list to operate on. The second is the function to apply.
+
+```{r vect_op2}
+library(purrr)
+l_doub <- as.list(v_doub)
+exp(v_doub)
+map(l_doub, exp)
+```

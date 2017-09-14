@@ -1,0 +1,49 @@
+---
+title: "Core Purrr - str() and listviewer()"
+author: "Miguel Arias"
+date: "9/13/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(repurrrsive)
+```
+
+## Str() and Listviewer()
+
+### Inspect and explore
+
+List inspection is very important.
+
+```{r listviewer}
+library(listviewer)
+```
+
+Before applying a function to every element of a list, better understand it.
+
+Need to know:
+* The length of the list
+* Are the components homogeneous, i.e., do they have the same overall structure, albeit containing different data?
+* Note the length, names, and types of the consituent objects
+
+`str()` helps with basic list inspection. 
+* By using `max.level` and `list.len` args can maintain the output of `str()` to manageable volume.
+
+#### listviewer
+
+Often more helpful to explore such lists with an interactive widger, which we include below for examples. 
+
+### Use of `str()`
+
+`got_chars` is a list with informaiton on the 29 point-of-view characters from the first five books in the Song of Ice and Fire series. 
+```{r GOT}
+str(got_chars, list.len = 3)
+str(got_chars[[1]], list.len = 8)
+```
+
+`gh_users` is a list with information on 6 GitHub users. `gh_repos` is a nested list, also of length 6, where each component is another list with information on up to 30 of that user's repositories.
+```{r github}
+str(gh_users, max.level = 1)
+```
