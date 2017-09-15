@@ -2,6 +2,8 @@
 library(purrr)
 library(rwars)
 library(tidyverse)
+library(jsonlite)
+library(listviewer)
 
 # Your task -----
 # There are only 11 instances of a character using a vehicle.  
@@ -15,6 +17,13 @@ load("Purrr/Challenges/data/swapi.rda")
 luke <- people[[1]]$results[[1]]
 map(people, ~.x$results) %>%
   map(people, ~.x$name)
+
+jsonedit(people)
+jsonedit(vehicles)
+jsonedit(films)
+
+people2 <- map(people, "results") # Gets the character info
+map(people2, "name")
 
 luke[["vehicles"]]
 
