@@ -2,7 +2,8 @@
 # install_github("ironholds/rwars", ref = "0.5.0")
 library(rwars)
 library(purrr)
-
+library(listviewer)
+library(jsonlite)
 # Your task ----
 # You should use the rwars package to download all the data, i.e. replicate
 # what I did to create the data you've been using.  That is, at the end
@@ -30,3 +31,8 @@ listviewer::jsonedit(people, mode = "view")
 
 entities <- c("species", "people", "films", "vehicles", "starships",
   "planets")
+
+# Answer
+names <- paste("get_all_", entities, sep = "")
+functions <- map(names, match.fun)
+data <- map(functions, ~get_all(fun = .x))
