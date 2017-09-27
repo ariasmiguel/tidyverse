@@ -19,7 +19,7 @@ DT2 <- as.data.table(DF2)
 ans1 <- DT1[, valB := valB*(.N), by = code]
 
 # 2) Update both valA and valB with valA*max(valA) and valB*max(valB) respectively grouped by id, code
-ans2b <- DT1[, c("valA", "valB") := lapply(.SD, function(x) x*max(x)), by=.(id,code)]
+ans2b <- DT1[, c("valA", "valB") := lapply(.SD, function(x) x*max(x)), by=.(id,code), .SDcols = valA:valB]
 
 # 3) Create two new columns ‘A2’, ‘B2’, while grouped by code, by randomly sampling 
 # (with replacement) the same number of rows in the group from valA and valB respectively.
@@ -28,15 +28,17 @@ ans3b <- DT1[, c("A2", "B2") := map(.SD, ~sample(.x, .N)), by = code, .SDcols = 
 
 # 4. Add a column named ‘uniq_N’ which contains the count of unique ‘code’ values, while grouped by ‘id’.
 ans4 <- DT1[, uniq_N := uniqueN(code), by = id]
+ans4
 
 # 5. Update all rows of valB with NA where DT3$id, DT3$code *don’t* match with DT1$id, DT1$code.
 DT3 = DT2[!duplicated(code)]
 ans5 <- DT1[!DT3, on = .(id, code), valB := NA]
+ans5
 
 # 6. Let DT3 = DT2[!duplicated(id)]. For each DT3$id, find all rows in DT1$id that is <= DT3$id and compute sum(valA)*mul.
 ans6 <- DT1[DT3, on = .(id <= id),
             sum(valA)*mul, by=.EACHI]
-
+ans6
 
 
 

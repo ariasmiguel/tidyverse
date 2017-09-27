@@ -9,7 +9,7 @@ bare_to_quo <- function(x, var){
 }
 bare_to_quo(mtcars, quo(cyl))
 
-# bare to quosure in fucntion: enquo
+# bare to quosure in function: enquo
 bare_to_quo_in_func <- function(x, var) {
   var_enq <- enquo(var)
   x %>% select(!!var_enq) %>% head(1)

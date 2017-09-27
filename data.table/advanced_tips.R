@@ -20,16 +20,16 @@ head(dt)
 # A.1 Accessing elements from a column of lists
 # Extract second element of each list in `gearL1` and create row
 # `gearL1`.
-dt[, gearL1:=lapply(gearsL, function(x) x[2])]
-dt[, gearS1:=sapply(gearsL, function(x) x[2])]
+dt[, gearL1:=lapply(gearsL, function(x) x[2])][]
+dt[, gearS1:=sapply(gearsL, function(x) x[2])][]
 
 head(dt)
 str(head(dt[, gearL1]))
 str(head(dt[, gearS1]))
 
 # Better way of doing this:
-dt[, gearL1:=lapply(gearsL, `[`, 2)]
-dt[, gearS1:=sapply(gearsL, `[`, 2)]
+dt[, gearL1:=lapply(gearsL, `[`, 2)][]
+dt[, gearS1:=sapply(gearsL, `[`, 2)][]
 
 # B. Suppressing intermediate output with {}
 dt <- data.table(mtcars)
@@ -51,8 +51,8 @@ head(dt)
 
 # D. Using shift for to lead/lag vectors and lists
 dt <- data.table(mtcars)[,.(mpg, cyl)]
-dt[,mpg_lag1:=shift(mpg, 1)]
-dt[,mpg_forward1:=shift(mpg, 1, type='lead')]
+dt[,mpg_lag1:=shift(mpg, 1)][]
+dt[,mpg_forward1:=shift(mpg, 1, type='lead')][]
 head(dt)
 
 # E. Create multiple columns with `:=`
@@ -102,13 +102,13 @@ leaveOneOutMean <- function(dt, ind, bybig, bysmall) {
 dt <- data.table(mtcars)[, .(cyl, mpg, qsec)]
 
 # Max of qsec for each cat of cyl
-dt[, max(qsec), by = cyl]
+dt[, max(qsec), by = cyl][]
 
 # Value of qsec when mpg is the highest per category of cyl
-dt[, qsec[.N], by = cyl]
+dt[, qsec[.N], by = cyl][]
 
 # Value of qsec when mpg is the lowest
-dt[, qsec[1], by = cyl]
+dt[, qsec[1], by = cyl][]
 
 # Value of qsec when mpg is the median per category of cyl
 dt[, qsec[round(.N/2)], by = cyl]

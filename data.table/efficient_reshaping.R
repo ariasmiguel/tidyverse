@@ -34,7 +34,7 @@ DT.m1
 # - How can we get back to the original DT from DT.m1?
 dcast(DT.m1, subject + time ~ dim, value.var = "measure")
 
-#  * dcast uses formula interface. The variables on the LFS of 
+# * dcast uses formula interface. The variables on the LHS of 
 # formula represents the id vars and RHS the measure vars
 # * value.var denotes the column to be filled in with while
 # casting the wide formal.

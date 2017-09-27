@@ -26,8 +26,8 @@ class(DT$ID)
 
 # Data.table general form: --------------------------------
 # DT[i, j, by]
-###  R:   i            j                by
-## SQL: where  select | update    group by
+###  R:   i            j              by
+## SQL: where   select | update    group by
 
 # Subsetting rows in i -------------------------------------
 # Get all the flights with "JFK" as the origin airport in
@@ -41,7 +41,7 @@ head(ans)
 # the prefix flights$ each time. However using fligths$dest
 # and flights$month would work just fine.
 
-# Get the first two roms form flights.
+# Get the first two rows from flights.
 ans <- flights[1:2]
 ans
 
@@ -157,17 +157,17 @@ head(ans)
 ## b. Keyby
 # Sometimes we would like to sort by the variables we grouped
 
-# So how can we directly order by all the grouping vars?
+# So how can we directly order by all the grouping vars? 
+# simply change by to keyby
 ans <- flights[carrier == "AA", .(mean_a = mean(arr_delay),
                                   mean_d = mean(dep_delay)),
                keyby = .(origin, dest, month)]
 head(ans)
-# simply change by to keyby
 
 ## c. Chaining
 ans <- flights[carrier == "AA", .N, by = .(origin, dest)]
 
-# How can we oder ans using the columns orig in asc, and dest
+# How can we order ans using the columns orig in asc, and dest
 # in desc order?
 ans <- ans[order(origin, -dest)]
 head(ans)
@@ -209,7 +209,7 @@ head(ans)
 
 # g. Why keep `j` so flexible?
 # Consistent syntax and keep using already existing and
-# familiar functions insead of learning new functions.
+# familiar functions instead of learning new functions.
 
 # How can we concatenate columns a and b for each group
 # in ID?
@@ -218,3 +218,4 @@ DT[, .(val = c(a,b)), by = ID]
 # What if we would like to have all the values of column a 
 # and b concated, but returned as a list column
 DT[, .(val = list(c(a,b))), by = ID]
+DT

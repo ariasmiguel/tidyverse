@@ -41,11 +41,11 @@ fertility[ , mean(work <= 4),
 fertility[age %between% c(22L,24L), .(mean(gender1 == "male"))]
 
 # Exercise 8
-# Add a new columng, age squared, to the dataset
+# Add a new column, age squared, to the dataset
 fertility[, age_sq := age^2]
 
 # Exercise 9
-# Out of the racial composition in the datset which had the lowest
+# Out of the racial composition in the dataset which had the lowest
 # proportion of boys for their first born.
 total = fertility[,.N]
 fertility[, .(.N, prop_m = mean(gender1 == "male")),

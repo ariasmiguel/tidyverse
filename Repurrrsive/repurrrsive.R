@@ -82,7 +82,7 @@ gap_nested %>%
 
 ## split + map_*()
 gap_split %>% 
-  map_dbl(~ cor(.x$lifeExp, .x$year)) %>% 
+  map_dbl(~ cor(.x$lifeExp, .x$year))
   
 ## split + map_*() + tibble::enframe()
 gap_split %>% 

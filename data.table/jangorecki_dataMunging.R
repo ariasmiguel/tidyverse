@@ -5,7 +5,7 @@ library(purrr)
 # Data ------------------------------------------------------------
 # Use data.table's fast file reader fread to load flights data
 DT <- fread("flights.wiki/NYCflights14/flights14.csv")
-head(flights)
+head(DT)
 
 #-------------------------------------------------------------------
 # Change data from long-to-wide (?dcast), wide-to-long (?melt)
@@ -68,7 +68,7 @@ outerjoin <- carrierdest[DT, on = c("carrier","dest")]
 print(outerjoin)
 
 # Inner join
-innerjoin <- DT[carrierdest,                # for each row in carrierdest
+innerjoin <- DT[carrierdest,              # for each row in carrierdest
               nomatch = 0L,               # return only matching rows from both tables
               on = c("carrier","dest")]   # joining on columns carrier and dest
 print(innerjoin)

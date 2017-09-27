@@ -59,7 +59,7 @@ setkeyv(flights, "origin") # useful to program with
 
 # set* and `:=`
 # These are the only functions which modify the input object
-# by refernce
+# by reference
 
 # Once you key a data.table by certain columns, you can subset
 # by querying those key columns using the `.()` notation in `i`
@@ -126,7 +126,7 @@ flights[, sort(unique(hour))]
 setkey(flights, origin, dest)
 key(flights)
 
-# Get the max dep_delay for ea month corresponding to 
+# Get the max dep_delay for each month corresponding to 
 # origin = "JFK". Order the result by month
 ans <- flights["JFK", max(dep_delay), keyby = month]
 head(ans)
@@ -136,7 +136,7 @@ key(ans)
 
 # A. `mult` arg
 # Can choose, for each query, if "all" the matching rows should
-# be returned, or just the "first" or "las" using the `mult` arg.
+# be returned, or just the "first" or "last" using the `mult` arg.
 # The def value is "all" - what we've seen so far
 
 # - Subset only the first matching row from all rows where origin

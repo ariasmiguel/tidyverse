@@ -50,7 +50,7 @@ airquality[rep(c(TRUE, FALSE), length = .N), Temp := Temp + 10L]
 # Exercise 8 ----
 head(airquality)
 airquality[, `:=`(Solar.R = Solar.R + 10L,
-                  Wind = Wind + 10)]
+                  Wind = Wind + 10L)]
 
 # Exercise 9 ----
 airquality[, `:=`(Solar.R = NULL,
@@ -66,7 +66,10 @@ str(airquality)
 # Kelvin scale. 
 # Celcius = (Temp-32)*5/9
 # Kelvin = Celcius + 273.15
-airquality[, Celcius := (Temp-32)*5/9][,Kelvin := Celcius + 273.15]
+# airquality[, {Celcius = (Temp-32*5/9);
+#               Kelvin = Celcius + 273.15;
+#               list(Celcius = Celcius, Kelvin = Kelvin)}]
+airquality[, Celcius := (Temp-32)*5/9][,Kelvin := Celcius + 273.15][]
 head(airquality)
 airquality[,c("a","b"):= list(celcius <- (Temp-32)*5/9,
                        kelvin <- celcius+273.15)]

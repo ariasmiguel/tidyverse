@@ -17,7 +17,7 @@ head(flights)
 # another location in memory
 
 # With data.table's `:=` operator, absolutely no copies are made
-# in both(1) and(2)
+# in both(1) and (2)
 
 # b. The `:=` operator
 # can be used in k in two ways:
@@ -151,3 +151,4 @@ DT_n = copy(names(DT))
 DT[, w := 4L][]
 ## DT_n doesn't get updated
 DT_n
+

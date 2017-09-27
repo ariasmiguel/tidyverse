@@ -59,7 +59,7 @@ accumulate(numbers, `+`)
 # 1. Create a function that returns the factorial of a number using
 # reduce
 my_fact <- function(x) {
-  factorial <- seq(1,x)    # Create a vector of length(x) from 1:x
+  factorial <- seq(1,x)    # Creates a vector of length(x) from 1:x
   reduce(factorial, `*`)
 }
 my_fact(5)
@@ -76,14 +76,13 @@ remove_csv <- function(names) {
 }
 remove_csv(dataset_names)
 
-
 # 3. Create a function that takes a number a, and then returns either
 # the sum of the numbers from 1 to this number that are divisible by
 # another number b or the product of the numbers from 1 to this number
 # that are divisible by b. 
 
 divisible <- function(a, b) {
-  !as.logical(a %% b)           # Checks if a divisible by b
+  !as.logical(a %% b)           # Checks if 'a' divisible by 'b'
 }
 
 reduce_some_numbers <- function(a, divisible_func = divisible, 

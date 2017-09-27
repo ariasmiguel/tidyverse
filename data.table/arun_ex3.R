@@ -28,24 +28,31 @@ ans4b <- tail(DT1, 2)
 
 # 5. Return a random sample of 4 rows.
 ans5<- DT1[sample(.N, 4L)]
+ans5
 
 # 6. Get median of valA and valB cols where code is not “a”. Name the columns ‘mA’ and ‘mB’.
 ans6 <- DT1[code != "a", `:=`("mA" = median(valA),
                               "mB" = median(valB))][]
+ans6
 
 # 7. Remove all rows in DT2 where DT2$code is duplicated. Store the result in DT3. Hint: see ?duplicated.
 DT3 <- DT2[duplicated(DT2[,code])]
+DT3
 
 # 8. Return all unique combinations of id, code (as a two column data.table) where valA^2 > valB. 
 # Hint: you’ll need to use the function `unique()` in `j`.
 ans8 <- DT1[valA^2 > valB, unique(as.data.table(list(id,code)))]
+ans8
 
-# 9. Read ?`.SD` and check explanation and examples and try to use `.SD` in `j` to solve (8). Hint: you might also need `.SDcols` argument.
+# 9. Read ?`.SD` and check explanation and examples and try to use `.SD` in `j` to solve (8). 
+# Hint: you might also need `.SDcols` argument.
 ans9 <- DT1[valA^2 > valB, unique(.SD), .SDcols = c("id", "code")]
+ans9
 
 # 10. For every DT3$code, return the last matching values of valA from DT1 along with ‘id’ column from DT3. i.e.,
 # result should contain code, valA and id (from DT3) columns. Do not remove non-matching rows.
 ans10 <- DT1[DT3, on = .(code), .(code, valA, i.id)]
+ans10
 
 
 

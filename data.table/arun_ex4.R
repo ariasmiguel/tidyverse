@@ -16,12 +16,15 @@ DT2 <- as.data.table(DF2)
 # 1. In DT1, on those rows where id != 2, replace valA and valB with valA+1 and valB+1 respectively.
 ans1 <- DT1[id != 2, `:=`(valA = valA+1L,
                           valB = valB+1L)]
+ans1
 
 # 2. On those rows where id == 2, replace valA with valB if valA is <= 7, else with valB^2.
 ans2 <- DT1[id == 2, val := ifelse(valA <= 7L, valB, as.integer(valB^2))]
+ans2
 
 # 3. Create a new column `tmp` and assign `NA` to it by reference.
 ans3 <- DT1[, temp := NA]
+ans3
 
 # 4. What’s the type (or class) of `tmp` column that we just created?
 class(DT1[, temp])
@@ -42,7 +45,8 @@ ans6 <- DT1[tmp_dt, on=.(code=keys), rank := i.vals]
 # 7. Let DT3 = DT2[!duplicated(code)]. Update both valA and valB columns with ‘valA*mul’ and ‘valB*mul’ 
 # wherever DT3$code matches DT1$code.. What happens to those rows where there are no matches in DT1? Why?
 DT3 = DT2[!duplicated(code)]
-ans7 <- DT1[DT3, on=.(code), c("valA", "valB") := lapply(.SD, `*`, i.mul), .SDcols=valA:valB]
+ans7 <- DT1[DT3, on=.(code), c("valA", "valB") := lapply(.SD, `*`, i.mul), .SDcols= valA:valB]
+ans7
 
 # 8. Add the column ‘mul’ from DT2 to DT1 by reference where DT2$id matches DT1$id. 
 # What happens to those values where DT2$id has the same value occurring more than once?

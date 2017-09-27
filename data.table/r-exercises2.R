@@ -17,10 +17,10 @@ diamonds[c("Ideal", "Premium"),
          .SD[c(1,.N)], by = .EACHI]
 
 # Exercise 3 ----
-# Make columns x,y,z value squaread. 
+# Make columns x,y,z value squared. 
 diamonds[, map(.SD, ~.x^2), .SDcols = c("x","y","z")]
 cols = c("x","y","z")
-for (i in cols)set(diamonds,j = i,value = diamonds[[i]]^2) # Using for loop and set
+for (i in cols) set(diamonds,j = i,value = diamonds[[i]]^2) # Using for loop and set
 
 # Exercise 4 ----
 # Capitalize the first letter of column names
@@ -40,13 +40,13 @@ str(diamonds)
 # cut `maximum of x * mean of depth` and name it `a`
 # and also create another metric which is `a*max(y)`
 # for each group of cut
-diamonds[, my_int_feature := max(X)*mean(Depth), by = Cut][
-        , my_int_f2 := my_int_feature*max(Y), by = Cut] # Chaining
+diamonds[, a := max(X)*mean(Depth), by = Cut][
+        , a2 := a*max(Y), by = Cut] # Chaining
 diamonds[,{m= mean(Depth)
-          my_int_feature= max(X)*m
-          my_int_feature2 = max(Y)*my_int_feature
-          list("my_int_feature" = my_int_feature,
-          "my_int_feature2"=my_int_feature2)},
+          a = max(X)*m
+          a2 = max(Y)*a
+          list("a" = a,
+          "a2"=a2)},
           by=Cut]
 
 # Exercise 7 ----
@@ -66,11 +66,12 @@ rbindlist(my_list, fill = TRUE, idcol = "my_list")
 # Exercise 8 ----
 # Create a data.table:
 set.seed(1024)
-x <- data.frame(rep(letters[1:2],6), c(1,2,3,4,6,7), sample(100,6))
+x <- data.frame(rep(letters[1:2],3), c(1,2,3,4,6,7), sample(100,6))
 names(x) <- c("id","day","value")
 test_dt <-setDT(x)
 str(test_dt)
 setkey(test_dt, id, day)
+test_dt
 test_dt[.("a", 5L), roll = TRUE]
 
 # Exercise 9 ----
