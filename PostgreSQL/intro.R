@@ -289,3 +289,95 @@ ans2 <- inner_join(ex5, ex4.1, by = c("company" = "company",
   head(10)
 ans2
 
+# Casting Data Types --------------------------------------------
+# CAST (source_column AS type);
+# Used to change field type on the fly
+
+dbGetQuery(con, "SELECT CAST(complaint_id AS float) AS complaint_id
+FROM bank_account_complaints LIMIT 10")
+
+bank_db %>% select(complaint_id) %>%
+  mutate(complaint_id = as.double(complaint_id)) %>%
+  head(10)
+
+# Test query that's going to be used to define a new view
+
+dbGetQuery(con, "SELECT CAST(complaint_id AS int) AS complaint_id,
+       date_received, product, sub_product, issue, company,
+           state, zip_code, submitted_via, date_sent, company_response_to_consumer,
+           timely_response, consumer_disputed
+           FROM bank_account_complaints 
+           WHERE state = 'CA'  
+           AND consumer_disputed = 'false' 
+           AND company = 'Wells Fargo & Company'
+           LIMIT 5")
+
+bank_db %>% 
+  select(complaint_id, date_received, product, sub_product,
+        issue, company, state, zip_code, submitted_via,
+        date_sent, company_response_to_consumer, timely_response,
+        consumer_disputed) %>%
+  mutate(complaint_id = as.integer(complaint_id)) %>%
+  filter(state == 'CA',
+         consumer_disputed == 'false',
+         company == 'Wells Fargo & Company') %>%
+  head(5)
+
+# Create a view in PostgreSQL
+dbSendQuery(con, "CREATE VIEW wells_complaints_v AS (
+    SELECT CAST(complaint_id AS int) AS complaint_id,
+            date_received, product, sub_product, issue, company,
+            state, zip_code, submitted_via, date_sent, company_response_to_consumer,
+            timely_response, consumer_disputed
+            FROM bank_account_complaints 
+            WHERE state = 'CA'  
+            AND consumer_disputed = 'No' 
+            AND company = 'Wells Fargo & Company')")
+
+# Create view in R
+bank_db %>% 
+  select(complaint_id, date_received, product, sub_product,
+         issue, company, state, zip_code, submitted_via,
+         date_sent, company_response_to_consumer, timely_response,
+         consumer_disputed) %>%
+  mutate(complaint_id = as.integer(complaint_id)) %>%
+  filter(state == 'CA',
+         consumer_disputed == 'false',
+         company == 'Wells Fargo & Company') %>>%
+  wells_complaints_v
+
+# Challenges ---------------------------------------------------
+# 1 
+challenge1 <- credit_db %>%
+  group_by(company) %>%
+  summarise(company_amt = n()) %>%
+  arrange(desc(company_amt))
+challenge1 %>% head(5)
+
+# 2
+total <- credit_db %>%
+  summarise(total = n())
+
+challenge2 <- credit_db %>%
+  group_by(company) %>%
+  summarise(company_amt = n(), total = unlist(total)) %>%
+  arrange(desc(company_amt))
+
+# 3
+challenge3 <- credit_db %>%
+  group_by(company) %>%
+  summarise(company_amt = n(), total = unlist(total),
+            percent = company_amt/total * 100) %>%
+  arrange(desc(company_amt))
+challenge3
+
+credit_db %>%
+  group_by(company) %>%
+  summarise(company_amt = n(), total = unlist(total),
+            percent = company_amt/total * 100) %>%
+  arrange(desc(company_amt)) %>%
+  head(5)
+
+# Close the connection -------------------------------------------
+dbDisconnect(con)
+dbUnloadDriver(drv)
