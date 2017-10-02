@@ -1390,7 +1390,7 @@ delay <- summarise(by_dest,
                    delay = mean(arr_delay, na.rm = TRUE))
 delay <- filter(delay, count > 20, dest != "HNL")
 
-# It looks like delays increse with distance up to ~750 miles
+# It looks like delays increase with distance up to ~750 miles
 # and then decrease. Maybe as flights get longer there's more
 # ability to make up delays in the air
 ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
@@ -1453,8 +1453,7 @@ not_cancelled %>%
 
 ### 5.6.3 Counts
 
-Whenever you do any aggregation, it's always a good idea to include either a count (`n()`), or  aocunt of non-missing values (`sum(!is.na(x))`). This way you can check that you're not drawing conclusions based on very small amounts of data. For example, let's look at the planes (id by tail number) that have the highest average delays:
-
+Whenever you do any aggregation, it's always a good idea to include either a count (`n()`), or a count of non-missing values (`sum(!is.na(x))`). This way you can check that you're not drawing conclusions based on very small amounts of data. For example, let's look at the planes (id by tail number) that have the highest average delays:
 
 ```r
 delays <- not_cancelled %>% 

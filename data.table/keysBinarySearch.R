@@ -34,14 +34,14 @@ rownames(DT)
 # this column
 
 # Think of `key` as supercharged rownames
-# - Can set keys on multiple columsn and the column can be of
+# - Can set keys on multiple columns and the column can be of
 # different types: integer, numeric, character, factor, etc..
 # - Uniqueness is not enforced, i.e., duplicate key values are
 # allowed. Since rows are sorted by key, any duplicates in the
 # key columns will appear consecutively.
 # - Setting a key does two things:
 # * phisically reorders the rows of the data.table by the
-# column(s) provided by refernce, always in increasing order
+# column(s) provided by reference, always in increasing order
 # * marks those columns as key columns by setting an attributed
 # called sorted to the data.table
 

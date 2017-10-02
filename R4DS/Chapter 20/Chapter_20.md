@@ -689,7 +689,7 @@ attributes(x)
 
 #### Dates and date-times
 
-Numeric vectors taht represent the number of days since 1 January 1970.
+Numeric vectors that represent the number of days since 1 January 1970.
 
 
 ```r

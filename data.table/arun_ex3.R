@@ -51,9 +51,8 @@ ans9
 
 # 10. For every DT3$code, return the last matching values of valA from DT1 along with ‘id’ column from DT3. i.e.,
 # result should contain code, valA and id (from DT3) columns. Do not remove non-matching rows.
-ans10 <- DT1[DT3, on = .(code), .(code, valA, i.id)]
+ans10 <- DT1[DT3, on = .(code), .(code, valA, i.id)][.N,]
 ans10
-
 
 
 

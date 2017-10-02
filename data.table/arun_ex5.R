@@ -31,7 +31,7 @@ ans4 <- DT1[, uniq_N := uniqueN(code), by = id]
 ans4
 
 # 5. Update all rows of valB with NA where DT3$id, DT3$code *don’t* match with DT1$id, DT1$code.
-DT3 = DT2[!duplicated(code)]
+DT3 <- DT2[!duplicated(code)]
 ans5 <- DT1[!DT3, on = .(id, code), valB := NA]
 ans5
 
@@ -39,7 +39,6 @@ ans5
 ans6 <- DT1[DT3, on = .(id <= id),
             sum(valA)*mul, by=.EACHI]
 ans6
-
 
 
 

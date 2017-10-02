@@ -51,10 +51,10 @@ ans7
 # 8. Add the column ‘mul’ from DT2 to DT1 by reference where DT2$id matches DT1$id. 
 # What happens to those values where DT2$id has the same value occurring more than once?
 ans8 <- DT1[DT2, on=.(id), mul := i.mul]
-
+ans8
 # 9. Replace DT2$mul with NA where DT1$id, DT1$code matches DT2$id, DT2$code.
 ans9 <- DT2[DT1, on=.(id, code), mul := NA]
-
+ans9
 
 
 

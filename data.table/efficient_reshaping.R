@@ -74,7 +74,7 @@ dcast(DT.m1, subject ~ ., fun.agg = function(x) sum(!is.na(x)),
 # and efficiently
 
 ## new 'cast' functionality - multiple value.vars
-# DT.c2 = dcast(DT.m2, family_id + age_mother ~ variable, value.var = c("dob", "gender"))
+# DT.c2 <- dcast(DT.m2, family_id + age_mother ~ variable, value.var = c("dob", "gender"))
 # DT.c2
 
 # Attributes are preserved in result wherever possible.

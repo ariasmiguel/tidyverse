@@ -110,7 +110,7 @@ head(ans)
 ans <- flights[, !c("arr_delay", "dep_delay"), with = FALSE]
 # or
 ans <- flights[, -c("arr_delay", "dep_delay"), with = FALSE]
-
+ans
 # v1.9.5+
 # returns year, month and day
 ans <- flights[, year:day, with = FALSE]

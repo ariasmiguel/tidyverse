@@ -34,7 +34,8 @@ DT[, sum_delay := arr_delay + dep_delay]
 head(DT)
 
 # Multiple variables
-# DT[, `:=`(sum_delay = arr_delay + dep_delay)]
+# DT[, `:=`(sum_delay = arr_delay + dep_delay,
+#           mean_delay = mean(arr_delay + dep_delay))]
 
 DT[origin == "JFK", distance := NA]
 head(DT)
